@@ -36,12 +36,18 @@ from .VW_config import tolerance
 
 
 def to_vector2d(vector):
-	(px,py) = vector
+	if len(vector)== 3:
+		(px,py,pz) = vector
+	else:
+		(px,py) = vector
 	return Vector2D(px,py)
 
 
 def to_point2d(point):
-	(px,py) = point
+	if len(point)== 3:
+		(px,py,pz) = point
+	else:
+		(px,py) = point
 	return Point2D(px,py)
 
 
@@ -281,7 +287,7 @@ def to_joined_gridded_mesh3d(geometry, grid_size, offset_distance=0):
 		#tp = vs.GetType(geo)
 		#if tp==24 or tp==25 or tp==34 or tp==38:
 		#	lb_meshes.append(to_gridded_mesh3d(geo, grid_size, offset_distance))
-		#else:  # assume that it's a Mesh
+		#else:	# assume that it's a Mesh
 		#	lb_meshes.append(to_mesh3d(geo))
 	if len(lb_meshes) == 1:
 		return lb_meshes[0]

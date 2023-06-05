@@ -73,15 +73,15 @@ def from_polyline2d(polyline, z=0):
 	if polyline.interpolated:
 		d=3
 	else:
-		d=2
+		d=1
 	pts = [pt for pt in polyline.vertices]
 	p = pts.pop(0)
 	if len(p) == 2:
-		p = (p[0], p[1], 0)
+		p = (p[0], p[1], z)
 	nC = vs.CreateNurbsCurve(p[0], p[1], z, True,d)
 	for p in pts:
 		if len(p) == 2:
-			p = (p[0], p[1], 0)
+			p = (p[0], p[1], z)
 		vs.AddVertex3D(nC, p[0] , p[1], z)
 	return nC
 
@@ -94,7 +94,9 @@ def from_mesh2d(mesh, z=0):
 			pt_function = z[2]
 	else:
 		pt_function = z
-	return _translate_mesh(mesh, pt_function)
+	h = _translate_mesh(mesh, pt_function)
+	vs.Move3DObj(h,0,0,z)
+	return h
 
 
    
@@ -152,7 +154,7 @@ def from_polyline3d(polyline):
 	if polyline.interpolated:
 		d=3
 	else:
-		d=2
+		d=1
 	pts = [pt for pt in polyline.vertices]
 	p = pts.pop(0)
 	if len(p) == 2:
@@ -167,7 +169,7 @@ def from_polyline3d(polyline):
 def from_poly3d_record(poly,dat):
 	vw_poly = []
 	normals = poly.face_normals
-	offset	= 13000/vs.GetLScale(vs.ActLayer())
+	offset = 13000/vs.GetLScale(vs.ActLayer())
 	for i in range(0,len(poly.faces)):
 		face = poly.faces[i]
 		pts = []
@@ -248,38 +250,45 @@ def from_cylinder(cylinder):
 
 """________ADDITIONAL 3D GEOMETRY TRANSLATORS________"""
 
-'''
+
 def from_polyline2d_to_joined_polyline(polylines, z=0):
-	
 	line_crv = []
 	for pl in polylines:
 		if isinstance(pl, LineSegment2D):
 			line_crv.append(from_linesegment2d(pl))
 		else:
 			line_crv.append(from_polyline2d(pl))
-	return rg.Curve.JoinCurves(line_crv)[0]
-'''
+	return line_crv
+	'''### 線の合成の仕方が不明
+	obj = line_crv[0]
+	for i in range(0,len(line_crv)):
+		vs.AddSurface(obj, line_crv[i])
+	return obj
+	'''
 
-'''
+
 def from_polyline2d_to_offset_brep(polylines, offset, z=0):
-   
+   	
 	curve = from_polyline2d_to_joined_polyline(polylines, z)
-	crv_style = rg.CurveOffsetCornerStyle.Sharp
-	all_curves = [curve]
-	off_curves = curve.Offset(rg.Plane.WorldXY, -offset, tolerance, crv_style)
-	if off_curves is not None:
-		all_curves.extend(off_curves)
-		offset_brep = rg.Brep.CreatePlanarBreps(all_curves)
-		if len(offset_brep) == 1:
-			if offset_brep[0].Loops.Count == 2:
-				return offset_brep[0]
-	return curve
-'''
+	curve2 = []
+	for c in curve:
+		curve2.append(vs.OffsetPolyClosed(c, offset, False))
+	for c in curve:
+		vs.DelObject(c)
+	return curve2
+	'''
+	curve2 = vs.OffsetPolyClosed(curve, offset, False)
+	vs.DelObject(curve)
+	return curve2
+	'''
 
 
 def from_face3d_to_wireframe(face):
 	
 	boundary = [_polyline_points(face.boundary)]
+	for obj in boundary:
+		vs.SetFPat(obj, 0)
+		vs.SetPolyClosed(obj, True)
 	if face.has_holes:
 		return boundary + [_polyline_points(tup) for tup in face.holes]
 	return boundary
@@ -311,31 +320,50 @@ def from_face3ds_to_colored_mesh(faces, color):
 	joined_mesh = []
 	for face in faces:
 		try:
-			joined_mesh.Append(from_mesh3d(face.triangulated_mesh3d))
+			po = from_mesh3d(face.triangulated_mesh3d)
+			col = color_to_color(color)
+			vs.SetFillBack(po,col)
+			joined_mesh.Append(po)
 		except Exception:
-			pass  # failed to create a Rhino Mesh from the Face3D
+			po = None  # failed to create a Rhino Mesh from the Face3D
+		
 	#joined_mesh.VertexColors.CreateMonotoneMesh(color_to_color(color))
 	return joined_mesh
 
 
-'''
-def from_mesh2d_to_outline(mesh, z=0):
-	
-	pt_function = _get_point2d_function(z)
-	verts = [pt_function(pt) for pt in mesh.vertices]
-	face_plines = []
-	for face in mesh.faces:
-		outline = [verts[f] for f in face] + [verts[face[0]]]
-		face_plines.append(rg.PolylineCurve(outline))
-	return face_plines
-'''
 
-'''
+def from_mesh2d_to_outline(mesh, z=0):
+	if isinstance(z, tuple) :
+		if len(z)<3:
+			pt_function = 0
+		else :
+			pt_function = z[2]
+	else:
+		pt_function = z
+	h = _translate_mesh(mesh, pt_function)
+	vs.Move3DObj(h,0,0,z)
+	h = vs.MeshToGroup(h)
+	obj = vs.FInGroup( h )
+	while obj != None:
+		vs.SetFPat(obj, 0)
+		vs.SetPolyClosed(obj, True)
+		obj = vs.NextObj( obj )
+	#vs.DelObject(h)
+	return [h]
+	
+
 def from_mesh3d_to_outline(mesh):
 	
-	rh_mesh = from_mesh3d(mesh)
-	return rh_mesh, rh_mesh.GetNakedEdges()
-'''
+	rh_mesh0 = from_mesh3d(mesh)
+	rh_mesh = vs.MeshToGroup(rh_mesh0)
+	obj = vs.FInGroup( rh_mesh )
+	while obj != None:
+		vs.SetFPat(obj, 0)
+		vs.SetPolyClosed(obj, True)
+		obj = vs.NextObj( obj )
+	vs.DelObject(rh_mesh0)
+	return [rh_mesh]
+
 
 """________________EXTRA HELPER FUNCTIONS________________"""
 

@@ -11,6 +11,8 @@ from ladybug_geometry.geometry3d.ray import Ray3D
 from ladybug_geometry.geometry3d.pointvector import Vector3D, Point3D
 
 
+from ladybug.VW_config import tolerance, angle_tolerance
+
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -70,40 +72,8 @@ def join_geometry_to_brep(geometry):
 	return rg.Brep.CreateFromMesh(joined_mesh, False)
 '''
 
-'''
-def bounding_box(geometry, high_accuracy=False):
-	"""Get a Rhino bounding box around an input Rhino Mesh or Brep.
 
-	This is a typical pre-step before using intersection functions.
 
-	Args:
-		geometry: A Rhino Brep or Mesh.
-		high_accuracy: If True, a physically accurate bounding box will be computed.
-			If not, a bounding box estimate will be computed. For some geometry
-			types, there is no difference between the estimate and the accurate
-			bounding box. Estimated bounding boxes can be computed much (much)
-			faster than accurate (or "tight") bounding boxes. Estimated bounding
-			boxes are always similar to or larger than accurate bounding boxes.
-	"""
-	return geometry.GetBoundingBox(high_accuracy)
-'''
-
-'''
-def bounding_box_extents(geometry, high_accuracy=False):
-	"""Get min and max points around an input Rhino Mesh or Brep
-
-	Args:
-		geometry: A Rhino Brep or Mesh.
-		high_accuracy: If True, a physically accurate bounding box will be computed.
-			If not, a bounding box estimate will be computed. For some geometry
-			types, there is no difference between the estimate and the accurate
-			bounding box. Estimated bounding boxes can be computed much (much)
-			faster than accurate (or "tight") bounding boxes. Estimated bounding
-			boxes are always similar to or larger than accurate bounding boxes.
-	"""
-	b_box = bounding_box(geometry, high_accuracy)
-	return b_box.Max, b_box.Min
-'''
 def vec3D_angle(va,vb):
 	(ax,ay,az) = va
 	(bx,by,bz) = vb
@@ -338,8 +308,48 @@ def normal_at_point(brep, point):
 	"""
 	return brep.ClosestPoint(point, tolerance)[5]
 '''
+def bounding_box(geometry, high_accuracy=False):
+	"""Get a Rhino bounding box around an input Rhino Mesh or Brep.
 
+	This is a typical pre-step before using intersection functions.
+
+	Args:
+		geometry: A Rhino Brep or Mesh.
+		high_accuracy: If True, a physically accurate bounding box will be computed.
+			If not, a bounding box estimate will be computed. For some geometry
+			types, there is no difference between the estimate and the accurate
+			bounding box. Estimated bounding boxes can be computed much (much)
+			faster than accurate (or "tight") bounding boxes. Estimated bounding
+			boxes are always similar to or larger than accurate bounding boxes.
+	"""
+	oy,ox,oz = vs.Get3DInfo(geometry)
+	(cx,cy),cz =  vs.Get3DCntr(geometry)
+	
+	p1x = cx - ox/2
+	p1y = cy - oy/2
+	p1z = cz - oz/2
+	p2x = cx + ox/2
+	p2y = cy + oy/2
+	p2z = cz + oz/2
+	return [(p1x,p1y,p1z),(p2x,p2y,p2z)]
+	#return geometry.GetBoundingBox(high_accuracy)
+'''	
+def bounding_box_extents(geometry, high_accuracy=False):
+	"""Get min and max points around an input Rhino Mesh or Brep
+
+	Args:
+		geometry: A Rhino Brep or Mesh.
+		high_accuracy: If True, a physically accurate bounding box will be computed.
+			If not, a bounding box estimate will be computed. For some geometry
+			types, there is no difference between the estimate and the accurate
+			bounding box. Estimated bounding boxes can be computed much (much)
+			faster than accurate (or "tight") bounding boxes. Estimated bounding
+			boxes are always similar to or larger than accurate bounding boxes.
+	"""
+	b_box = bounding_box(geometry, high_accuracy)
+	return b_box.Max, b_box.Min
 '''
+
 def intersect_solids_parallel(solids, bound_boxes, cpu_count=None):
 	"""Intersect the co-planar faces of an array of solids using parallel processing.
 
@@ -360,6 +370,8 @@ def intersect_solids_parallel(solids, bound_boxes, cpu_count=None):
 		int_solids -- The input array of solids, which have all been intersected
 		with one another.
 	"""
+	return intersect_solids(solids, bound_boxes)
+	'''
 	int_solids = solids[:]	# copy the input list to avoid editing it
 
 	def intersect_each_solid(i):
@@ -398,10 +410,8 @@ def intersect_solids_parallel(solids, bound_boxes, cpu_count=None):
 		tasks.Parallel.ForEach(range(len(s_groups)), intersect_each_solid_group)
 
 	return int_solids
+	'''
 
-'''
-
-'''
 def intersect_solids(solids, bound_boxes):
 	"""Intersect the co-planar faces of an array of solids.
 
@@ -436,10 +446,10 @@ def intersect_solids(solids, bound_boxes):
 
 	return int_solids
 
-'''
 
 
-'''
+
+
 def intersect_solid(solid, other_solid):
 	"""Intersect the co-planar faces of one solid Brep using another.
 
@@ -457,16 +467,22 @@ def intersect_solid(solid, other_solid):
 			split the other_solid with the input solid.
 	"""
 	# variables to track the splitting process
-	intersection_exists = False	 # boolean to note whether an intersection exists
+	re , solid = vs.IntersectSolid(solid, other_solid)
+	if re ==0 and solid is not None:
+		intersection_exists = True
+	else:
+		intersection_exists = False
+	return solid, intersection_exists	
+	'''intersection_exists = False	 # boolean to note whether an intersection exists
 	temp_brep = solid.Split(other_solid, tolerance)
 	if len(temp_brep) != 0:
 		solid = rg.Brep.JoinBreps(temp_brep, tolerance)[0]
 		solid.Faces.ShrinkFaces()
 		intersection_exists = True
 	return solid, intersection_exists
-'''
+	'''
 
-'''
+
 def overlapping_bounding_boxes(bound_box1, bound_box2):
 	"""Check if two Rhino bounding boxes overlap within the tolerance.
 
@@ -481,26 +497,29 @@ def overlapping_bounding_boxes(bound_box1, bound_box2):
 		bound_box2: The second bound_box to check.
 	"""
 	# Bounding box check using the Separating Axis Theorem
-	bb1_width = bound_box1.Max.X - bound_box1.Min.X
-	bb2_width = bound_box2.Max.X - bound_box2.Min.X
-	dist_btwn_x = abs(bound_box1.Center.X - bound_box2.Center.X)
+	(p11x,p11y,p11z),(p12x,p12y,p12z) = bound_box1
+	(p21x,p21y,p21z),(p22x,p22y,p22z) = bound_box1
+	
+	bb1_width = p12x-p11x #bound_box1.Max.X - bound_box1.Min.X
+	bb2_width = p22x-p21x #bound_box2.Max.X - bound_box2.Min.X
+	dist_btwn_x = abs((p11x+p12x)/2 - (p21x+p22x)/2) #abs(bound_box1.Center.X - bound_box2.Center.X)
 	x_gap_btwn_box = dist_btwn_x - (0.5 * bb1_width) - (0.5 * bb2_width)
 
-	bb1_depth = bound_box1.Max.Y - bound_box1.Min.Y
-	bb2_depth = bound_box2.Max.Y - bound_box2.Min.Y
-	dist_btwn_y = abs(bound_box1.Center.Y - bound_box2.Center.Y)
+	bb1_depth = p12y-p11y #bound_box1.Max.Y - bound_box1.Min.Y
+	bb2_depth = p22y-p21y #bound_box2.Max.Y - bound_box2.Min.Y
+	dist_btwn_y = abs((p11y+p12y)/2 - (p21y+p22y)/2) #abs(bound_box1.Center.Y - bound_box2.Center.Y)
 	y_gap_btwn_box = dist_btwn_y - (0.5 * bb1_depth) - (0.5 * bb2_depth)
 
-	bb1_height = bound_box1.Max.Z - bound_box1.Min.Z
-	bb2_height = bound_box2.Max.Z - bound_box2.Min.Z
-	dist_btwn_z = abs(bound_box1.Center.Z - bound_box2.Center.Z)
+	bb1_height = p12z-p11z #bound_box1.Max.Z - bound_box1.Min.Z
+	bb2_height = p22z-p21z #bound_box2.Max.Z - bound_box2.Min.Z
+	dist_btwn_z = abs((p11z+p12z)/2 - (p21z+p22z)/2) #abs(bound_box1.Center.Z - bound_box2.Center.Z)
 	z_gap_btwn_box = dist_btwn_z - (0.5 * bb1_height) - (0.5 * bb2_height)
 
 	if x_gap_btwn_box > tolerance or y_gap_btwn_box > tolerance or \
 			z_gap_btwn_box > tolerance:
 		return False  # no overlap
 	return True	 # overlap exists
-'''
+
 
 '''
 def split_solid_to_floors(building_solid, floor_heights):
