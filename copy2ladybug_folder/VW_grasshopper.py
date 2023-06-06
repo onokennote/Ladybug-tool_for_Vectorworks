@@ -108,7 +108,7 @@ def give_popup_message(message, window_title='', icon_type='information'):
 '''
 
 
-def all_required_inputs(component):
+def all_required_inputs(component,inputs):
 	"""Check that all required inputs on a component are present.
 
 	Note that this method needs required inputs to be written in the correct
@@ -123,20 +123,16 @@ def all_required_inputs(component):
 		True if all required inputs are present. False if they are not.
 	"""
 	is_input_missing = False
-	inputs = component.GetInputPorts()
 	for param in inputs:
-		if param.GetName().startswith('_') and not param.GetName().endswith('_'):
-			missing = False
-			if not param.GetValue():
-				missing = True
-			#elif param.VolatileData[0][0] is None:
-			#	missing = True
-
-			if missing is True:
-				msg = 'Input parameter {} failed to collect data!'.format(param.NickName)
-				#print(msg)
-				give_warning(component, msg)
+		if param is None :
+			is_input_missing = True
+		elif type(param) == list:
+			if len(param)==0:
 				is_input_missing = True
+	if is_input_missing is True:
+		msg = 'A required parameter is not connected.'
+		give_warning(component, msg)
+		
 	return not is_input_missing
 
 
