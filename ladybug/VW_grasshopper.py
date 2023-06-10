@@ -397,7 +397,7 @@ def data_tree_to_list(input):
 
 
 def list_to_data_tree(input, root_count=0, s_type=object):
-   return input#list(itertools.chain(*input))
+   return list(itertools.chain(*input))
 
 
 '''
