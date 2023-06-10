@@ -173,6 +173,7 @@ def from_polyline3d(polyline):
 	return nC	
 	
 def from_poly3d_record(poly,dat):
+	vs.ClosePoly()
 	vw_poly = []
 	normals = poly.face_normals
 	offset = 13000/vs.GetLScale(vs.ActLayer())
@@ -183,7 +184,6 @@ def from_poly3d_record(poly,dat):
 			pts.append((pt.x,pt.y,pt.z))
 		vs.Poly3D(*pts)
 		po = vs.LNewObj()
-		vs.SetPolyClosed( po , True)
 		if poly.is_color_by_face and poly.colors is not None:
 			col = color_to_color(poly.colors[i])
 			vs.SetFillBack(po,col)
@@ -203,11 +203,11 @@ def from_mesh3d(mesh):
 
 
 def from_face3d(face):
+	vs.ClosePoly()
 	pts = face.vertices
 	pts = [(pt.x,pt.y,pt.z) for pt in pts]
 	vs.Poly3D(*pts)
 	po = vs.LNewObj()
-	vs.SetPolyClosed( po , True)
 	return po
 	'''
 	segs = [from_linesegment3d(seg) for seg in face.boundary_segments]
@@ -274,7 +274,6 @@ def from_polyline2d_to_joined_polyline(polylines, z=0):
 
 
 def from_polyline2d_to_offset_brep(polylines, offset, z=0):
-   	
 	curve = from_polyline2d_to_joined_polyline(polylines, z)
 	curve2 = []
 	for c in curve:
@@ -290,11 +289,10 @@ def from_polyline2d_to_offset_brep(polylines, offset, z=0):
 
 
 def from_face3d_to_wireframe(face):
-	
+	vs.ClosePoly()
 	boundary = [_polyline_points(face.boundary)]
 	for obj in boundary:
 		vs.SetFPat(obj, 0)
-		vs.SetPolyClosed(obj, True)
 	if face.has_holes:
 		return boundary + [_polyline_points(tup) for tup in face.holes]
 	return boundary
@@ -339,6 +337,7 @@ def from_face3ds_to_colored_mesh(faces, color):
 
 
 def from_mesh2d_to_outline(mesh, z=0):
+	vs.ClosePoly()
 	if isinstance(z, tuple) :
 		if len(z)<3:
 			pt_function = 0
@@ -352,20 +351,18 @@ def from_mesh2d_to_outline(mesh, z=0):
 	obj = vs.FInGroup( h )
 	while obj != None:
 		vs.SetFPat(obj, 0)
-		vs.SetPolyClosed(obj, True)
 		obj = vs.NextObj( obj )
 	#vs.DelObject(h)
 	return [h]
 	
 
 def from_mesh3d_to_outline(mesh):
-	
+	vs.ClosePoly()
 	rh_mesh0 = from_mesh3d(mesh)
 	rh_mesh = vs.MeshToGroup(rh_mesh0)
 	obj = vs.FInGroup( rh_mesh )
 	while obj != None:
 		vs.SetFPat(obj, 0)
-		vs.SetPolyClosed(obj, True)
 		obj = vs.NextObj( obj )
 	vs.DelObject(rh_mesh0)
 	return [rh_mesh]
@@ -375,6 +372,7 @@ def from_mesh3d_to_outline(mesh):
 
 
 def _translate_mesh(mesh, z):
+	vs.ClosePoly()
 	if mesh.is_color_by_face:  # Mesh is constructed face-by-face
 		vs.BeginMesh()
 		for i in range(0,len(mesh.faces)):
@@ -387,7 +385,6 @@ def _translate_mesh(mesh, z):
 					pts.append((pt.x, pt.y , z))
 			vs.Poly3D(*pts)
 			po = vs.LNewObj()
-			vs.SetPolyClosed( po , True)
 			if mesh.colors is not None:
 				col = color_to_color(mesh.colors[i])
 				vs.SetFillBack(po,col)
@@ -406,7 +403,6 @@ def _translate_mesh(mesh, z):
 					pts.append((pt.x, pt.y , z))
 			vs.Poly3D(*pts)
 			po = vs.LNewObj()
-			vs.SetPolyClosed( po , True)
 			#if mesh.colors is not None:
 			#	col = color_to_color(mesh.colors[i])
 			#	vs.SetFillBack(po,col)
@@ -426,11 +422,10 @@ def _translate_mesh(mesh, z):
 
 
 def _polyline_points(tup):
-	
+	vs.ClosePoly()
 	pts = []
 	for pt in tup:
 		pts.append((pt.x,pt.y,pt.z))
 	vs.Poly3D(*pts)
 	po = vs.LNewObj()
-	vs.SetPolyClosed( po , True)
 	return po 
