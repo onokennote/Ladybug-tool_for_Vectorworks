@@ -64,7 +64,7 @@ def set_icon(node_handle,ox,oy): #, ver = "1.6.0"):
 	'''
 	return 
 
-def give_warning(component, message):
+def give_warning(component2, message):
 	"""Give a warning message (turning the component orange).
 
 	Args:
@@ -72,20 +72,20 @@ def give_warning(component, message):
 			the ghenv.Component call within Grasshopper API.
 		message: Text string for the warning message.
 	"""
-	nname = vs.GetObjectUuid(component)
+	nname = vs.GetObjectUuid(component2)
 	iname = "warn_"+ nname
 	ih = vs.GetObject(iname)
 	if ih != None:
 		vs.DelObject(ih)
 	vs.MoveTo(0,0)
 	vs.CreateText(message)
-	h0 = vs.LNewObj()
-	h =  vs.CreateDuplicateObject(h0, vs.GetParent(component))
-	vs.SetName(h , iname)
-	vs.SetFillBack( h, (65535, 0, 0) )
-	(p3x,p3y)=vs.Get2DPt(component)
-	vs.HMove(h,p3x,p3y)
-	vs.DelObject(h0)
+	hh0 = vs.LNewObj()
+	hhh =  vs.CreateDuplicateObject(hh0, vs.GetParent(component2))
+	vs.SetName(hhh , iname)
+	vs.SetFillBack( hhh, (65535, 0, 0) )
+	(p3x,p3y)=vs.Get2DPt(component2)
+	vs.HMove(hhh,p3x,p3y)
+	vs.DelObject(hh0)
 	#vs.CreateText("Check the messages in the wrapper for warnings!")
 	#vs.SetFillBack( vs.LNewObj(), (65535, 0, 0) )
 '''
@@ -154,8 +154,10 @@ def all_required_inputs(component,inputs):
 		msg = 'A required parameter is not connected.'
 		give_warning(component, msg)
 	else:
-		give_warning(component, None)
-		
+		nname = vs.GetObjectUuid(component)
+		iname = "warn_"+ nname
+		ih = vs.GetObject(iname)
+		vs.DelObject(ih)
 	return not is_input_missing
 
 
