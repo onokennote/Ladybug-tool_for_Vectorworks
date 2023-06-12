@@ -86,8 +86,7 @@ def give_warning(component2, message):
 	(p3x,p3y)=vs.Get2DPt(component2)
 	vs.HMove(hhh,p3x,p3y)
 	vs.DelObject(hh0)
-	#vs.CreateText("Check the messages in the wrapper for warnings!")
-	#vs.SetFillBack( vs.LNewObj(), (65535, 0, 0) )
+	
 '''
 
 def give_remark(component, message):
@@ -144,12 +143,16 @@ def all_required_inputs(component,inputs):
 		True if all required inputs are present. False if they are not.
 	"""
 	is_input_missing = False
+
 	for param in inputs:
-		if param is None :
-			is_input_missing = True
-		elif type(param) == list:
+		if type(param) == list:
 			if len(param)==0:
 				is_input_missing = True
+			if len(param)==1:
+				if param[0] is None:
+					is_input_missing = True
+		elif not param:
+			is_input_missing = True
 	if is_input_missing is True:
 		msg = 'A required parameter is not connected.'
 		give_warning(component, msg)
