@@ -151,7 +151,7 @@ def all_required_inputs(component,inputs):
 			if len(param)==1:
 				if param[0] is None:
 					is_input_missing = True
-		elif not param:
+		elif not param and type(param) is not int and type(param) is not float3 :
 			is_input_missing = True
 	if is_input_missing is True:
 		msg = 'A required parameter is not connected.'
