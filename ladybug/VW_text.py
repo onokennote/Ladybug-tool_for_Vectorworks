@@ -16,6 +16,7 @@ def text_objects(text, plane, height, font='Arial',
 	if vertical_alignment==5:
 		vertical_alignment=4
 	vs.SetWorkingPlaneN((plane.o.x,plane.o.y,plane.o.z),(plane.n.x,plane.n.y,plane.n.z),(plane.x.x,plane.x.y,plane.x.z),)
+	pl_id = vs.GetCurrentPlanarRefID()
 	tex = text.split('\n')
 	obj = []
 	LayerScale  = vs.GetLScale(vs.ActLayer())
@@ -28,6 +29,7 @@ def text_objects(text, plane, height, font='Arial',
 		vs.SetTextJust( tx , horizontal_alignment)
 		vs.SetTextVerticalAlign(tx,vertical_alignment)
 		vs.SetFPat(tx, 0)
+		vs.SetPlanarRef(tx, pl_id)
 		obj.append(tx)
 	vs.SetWorkingPlaneN( (0,0,0),(0,0,1),(1,0,0) )
 	return obj

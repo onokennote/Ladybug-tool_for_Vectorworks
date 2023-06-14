@@ -27,8 +27,8 @@ def from_vector2d(pts):
 	return p2
 
 def from_point2d(pts):
-	p2 = (pts.x,pts.y)
-	vs.Locus(p2)
+	p2 = (pts.x,pts.y,0)
+	vs.Locus3D(p2)
 	return vs.LNewObj()
 
 '''
@@ -39,8 +39,10 @@ def from_ray2d(ray, z=0):
 def from_linesegment2d(line, z=0):
 	vs.MoveTo(line.p1.x,line.p1.y)
 	vs.LineTo(line.p2.x,line.p2.y)
-	vs.Move3DObj(vs.LNewObj(),0,0,z)
-	return vs.LNewObj()
+	obj = vs.LNewObj()
+	vs.Move3DObj(obj,0,0,z)
+	vs.SetPlanarRef(obj, -1)
+	return obj
 
 
 def from_arc2d(arc, z=0):
@@ -50,6 +52,7 @@ def from_arc2d(arc, z=0):
 		obj = vs.LNewObj()
 		vs.Move3DObj(obj,0,0,z)
 		vs.SetFPat(obj, 0)
+		vs.SetPlanarRef(obj, -1)
 		return obj
 	else: 
 		r1 = math.degrees(arc.a1)
@@ -58,6 +61,7 @@ def from_arc2d(arc, z=0):
 		vs.ArcByCenter(cx,cy,r1-90,(r2-r1))
 		obj = vs.LNewObj() 
 		vs.SetFPat(obj, 0)
+		vs.SetPlanarRef(obj, -1)
 		return obj
 
 
@@ -66,6 +70,7 @@ def from_polygon2d(polygon, z=0):
 	vs.Poly(*pts)
 	obj = vs.LNewObj()
 	vs.SetFPat(obj, 0)
+	vs.SetPlanarRef(obj, -1)
 	return obj
 	
 		
@@ -89,6 +94,7 @@ def from_polyline2d(polyline, z=0):
 			p = (p[0], p[1], z)
 		vs.AddVertex3D(nC, p[0] , p[1], z)
 	vs.SetFPat(nC, 0)
+	vs.SetPlanarRef(nC, -1)
 	return nC
 
 
@@ -102,6 +108,7 @@ def from_mesh2d(mesh, z=0):
 		pt_function = z
 	h = _translate_mesh(mesh, pt_function)
 	vs.Move3DObj(h,0,0,z)
+	vs.SetPlanarRef(h, -1)
 	return h
 
 
@@ -138,13 +145,19 @@ def from_plane(pl):
 
 def from_arc3d(arc):
 	if arc.is_circle:
+		vs.SetWorkingPlaneN((arc.plane.o.x,arc.plane.o.y,arc.plane.o.z),(arc.plane.n.x,arc.plane.n.y,arc.plane.n.z),(arc.plane.y.x,arc.plane.y.y,arc.plane.y.z))
+		pl_id = vs.GetCurrentPlanarRefID()
 		(ax,ay,az ) =arc.plane.o
 		(cx,cy,cz) =arc.c
 		vs.ArcByCenter(cx,cy,arc.radius,360,360)
-		vs.Move3DObj(vs.LNewObj(),0,0,cz)
-		return vs.LNewObj()
+		obj = vs.LNewObj()
+		vs.Move3DObj(obj,0,0,cz)
+		vs.SetPlanarRef(obj, pl_id)
+		vs.SetWorkingPlaneN( (0,0,0),(0,0,1),(1,0,0) )
+		return obj
 	else:
-		vs.SetWorkingPlaneN((arc.plane.o.x,arc.plane.o.y,arc.plane.o.z),(arc.plane.n.x,arc.plane.n.y,arc.plane.n.z),(arc.plane.y.x,arc.plane.y.y,arc.plane.y.z),)
+		vs.SetWorkingPlaneN((arc.plane.o.x,arc.plane.o.y,arc.plane.o.z),(arc.plane.n.x,arc.plane.n.y,arc.plane.n.z),(arc.plane.y.x,arc.plane.y.y,arc.plane.y.z))
+		pl_id = vs.GetCurrentPlanarRefID()
 		r1 = math.degrees(arc.a1)
 		r2 = math.degrees(arc.a2)
 		if arc.plane.o.z<0:
@@ -152,7 +165,9 @@ def from_arc3d(arc):
 		else:
 			vs.ArcByCenter(0,0,arc.radius,r1-90,180+r2*2)
 		obj = vs.LNewObj() 
+		vs.SetPlanarRef(obj, pl_id)
 		vs.SetWorkingPlaneN( (0,0,0),(0,0,1),(1,0,0) )
+		vs.SetFPat(obj, 0)
 		return obj
 
 

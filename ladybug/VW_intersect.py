@@ -165,7 +165,7 @@ def intersect_mesh_rays(mesh, points, vectors, normals=None, cpu_count=0, parall
 		else:  # run the groups in a manner that meets the CPU count
 			with ThreadPoolExecutor() as executor:
 				for i in range(len(points)):
-					executor.submit(intersect_point_group_normal_check,i)
+					executor.submit(intersect_each_point_group_normal_check,i)
 		
 	else:
 		
@@ -180,7 +180,7 @@ def intersect_mesh_rays(mesh, points, vectors, normals=None, cpu_count=0, parall
 		else:  # run the groups in a manner that meets the CPU count
 			with ThreadPoolExecutor() as executor:
 				for i in range(len(points)):
-					executor.submit(intersect_point_group,i)
+					executor.submit(intersect_each_point_group,i)
 		
 	return intersection_matrix, angle_matrix
 '''
