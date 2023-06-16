@@ -10,7 +10,7 @@ grasshopper等で環境シミュレーションが出来るプラグインの**l
 ## インストール
 [リポジトリ・トップページ](https://github.com/onokennote/Ladybug-tool_for_Vectorworks) 画面右のReleases 最新版(latest)をダウンロードしてください。
 
-導入方法は **HowToInstall.pdf** 又は **HowToInstall.vwx** をご覧ください。
+導入方法は同梱の **HowToInstall.pdf** 又は **HowToInstall.vwx** をご覧ください。
 
 管理者の環境により、Vectorworks2022でファイルを作成・動作テストを行っております。（vw2018も書き出していますが、動作テストは行っていません。）
 
