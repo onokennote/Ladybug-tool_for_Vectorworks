@@ -5,7 +5,7 @@
 
 (現在、
  - ladybug:lady_beetle: honeybee,honeybee-radiance,honeybee-energy:honeybee: を移植中である程度動くようになった段階です。今後、ほとんどのGrasshopperのコンポーネントをマリオネット・ノードに変換予定です。
- - 将来的には butterfly:butterfly: doragonfly:mosquito: の移植にも挑戦予定です。
+ - 将来的には butterfly:butterfly: doragonfly の移植にも挑戦予定です。
 
 質問等は気軽に [**Discussions**](https://github.com/onokennote/Ladybug-tool_for_Vectorworks/discussions) の方にお願いします。	:mailbox:
 
