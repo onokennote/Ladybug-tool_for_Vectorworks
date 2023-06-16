@@ -29,6 +29,7 @@ def from_vector2d(pts):
 def from_point2d(pts):
 	p2 = (pts.x,pts.y,0)
 	vs.Locus3D(p2)
+	vs.SetPlanarRef(vs.LNewObj(), -1)
 	return vs.LNewObj()
 
 '''
@@ -111,10 +112,163 @@ def from_mesh2d(mesh, z=0):
 	vs.SetPlanarRef(h, -1)
 	return h
 
+def draw_meshimage(mesh):
+	facegroups = []
+	fg_colors = []
+	fg_normals = []		
+	fg_vsets = []
+	fg_ed1 = []
+	fg_ed2 = []
+	fg = []
+	fgc = []
+	vset = set()
+	vts = [ (pt.x , pt.y , pt.z) for pt in mesh.vertices]
+	
+	for i , face in enumerate(mesh.faces):
+		ed1 = (vts[face[1]][0] - vts[face[0]][0] , vts[face[1]][1] - vts[face[0]][1] , vts[face[1]][2] - vts[face[0]][2] )
+		ed2 = (vts[face[2]][0] - vts[face[1]][0] , vts[face[2]][1] - vts[face[1]][1] , vts[face[2]][2] - vts[face[1]][2] )
+		if len(fg)==0:
+			fg.append(face)
+			fgc.append(mesh.colors[i])
+			fg_normals.append(mesh.face_normals[i])
+			fg_ed1.append(ed1)
+			fg_ed2.append(ed2)
+			for vv in face:
+				vset.add(vv)
+			edge1 = ed1
+			edge2 = ed2
+			gg = (ed1[0]**2+ed1[1]**2+ed1[2]**2)**0.5/20
+		else:
+			han = False
+			if abs(edge1[0]-ed1[0]) < gg and abs(edge1[1]-ed1[1]) < gg and abs(edge1[2]-ed1[2]) < gg and abs(edge2[0]-ed2[0]) < gg and abs(edge2[1]-ed2[1]) < gg and abs(edge2[2]-ed2[2]) < gg:
+				for p in face:
+					if p in vset:
+						han = True
+						break
+			if han==False:
+				facegroups.append(fg)
+				fg_colors.append(fgc)
+				fg_vsets.append(vset)
+				fg = []
+				fgc = []
+				vset = set()
+				edge1 = ed1
+				edge2 = ed2
+				fg_normals.append(mesh.face_normals[i])
+				fg_ed1.append(ed1)
+				fg_ed2.append(ed2)
+			fg.append(face)
+			fgc.append(mesh.colors[i])
+			for vv in face:
+				vset.add(vv)
+	facegroups.append(fg)
+	fg_colors.append(fgc)
+	fg_vsets.append(vset)
+	
+	vs.SetPrefInt(86,2)
+	vw_mesh = []
+	for kk , faces in enumerate(facegroups):
+		x_co =  [vts[v][0] for v in fg_vsets[kk]] 
+		y_co =  [vts[v][1] for v in fg_vsets[kk]]
+		z_co =  [vts[v][2] for v in fg_vsets[kk]]
+		x_min = min (x_co)
+		x_max = max (x_co)
+		y_min = min (y_co)
+		y_max = max (y_co)
+		z_min = min (z_co)
+		z_max = max (z_co)
+		cx = (x_max+ x_min)/2
+		cy = (y_max+ y_min)/2
+		cz = (z_max+ z_min)/2
+		normal = fg_normals[kk]
+		if normal[2] !=0:
+			pv = [vts[face[0]][0] for face in faces] 
+			pw = [vts[face[0]][1] for face in faces]
+			v_dim = abs(vts[faces[0][2]][0]-vts[faces[0][0]][0])
+			w_dim = abs(vts[faces[0][2]][1]-vts[faces[0][0]][1])
+			if normal[2]<0:
+				pv.reverse()
+			if normal[0] != 0:
+				pv , pw = pw , pv
+				v_dim , w_dim = w_dim , v_dim
+				pw.reverse()
+		elif normal[1] ==0:
+			pv = [vts[face[0]][1] for face in faces] 
+			pw = [vts[face[0]][2] for face in faces]
+			v_dim = abs(vts[faces[0][2]][1]-vts[faces[0][0]][1])
+			w_dim = abs(vts[faces[0][2]][2]-vts[faces[0][0]][2])
+			if normal[0]>0:
+				pv.reverse()
+		else:
+			pv = [vts[face[0]][0] for face in faces] 
+			pw = [vts[face[0]][2] for face in faces]
+			v_dim = abs(vts[faces[0][2]][0]-vts[faces[0][0]][0])
+			w_dim = abs(vts[faces[0][2]][2]-vts[faces[0][0]][2])
+			if normal[1]<0:
+				pv.reverse()
+		v_min = min(pv)  
+		v_max = max(pv)  
+		w_min = min(pw)  
+		w_max = max(pw)
+		v_count = int((v_max-v_min)/v_dim)+1
+		w_count = int((w_max-w_min)/w_dim)+1
+		from PIL import Image,ImageDraw
+		img = Image.new("RGBA",(v_count*2,w_count*2))
+		draw = ImageDraw.Draw(img)
+		(av,aw) = (v_min,w_min)
+		
+		for k ,face in enumerate(faces):
+			#pt = vts[face[0]]
+			ppv = round((pv[k]-av)/v_dim)
+			ppw = round((pw[k]-aw)/w_dim)
+			col = fg_colors[kk][k]
+			draw.rectangle(((ppv*2,ppw*2),(ppv*2+1,ppw*2+1)),(col.r,col.g,col.b,255))
+			
+		img_path = "D:\simulation"+"\mashimg.png"
+		img.save(img_path)
+		igr = None
+		igr = vs.BeginGroupN(igr)	
+		msh = vs.ImportImageFile(img_path, (0,0))
+		((b1x,b1y),(b2x,b2y)) = vs.GetBBox(msh)
+		imw = b2x-b1x
+		imh = b2y-b1y
+		mir = False
+		if normal[2] !=0:
+			vv = (fg_ed1[kk][0]**2+fg_ed1[kk][1]**2+fg_ed1[kk][2]**2)**0.5
+			vw = (fg_ed2[kk][0]**2+fg_ed2[kk][1]**2+fg_ed2[kk][2]**2)**0.5
+		elif normal[1] ==0:
+			vv = -(fg_ed1[kk][0]**2+fg_ed1[kk][1]**2+fg_ed1[kk][2]**2)**0.5
+			vw = (fg_ed2[kk][0]**2+fg_ed2[kk][1]**2+fg_ed2[kk][2]**2)**0.5
+		else:
+			vv = -(fg_ed1[kk][0]**2+fg_ed1[kk][1]**2+fg_ed1[kk][2]**2)**0.5
+			vw = (fg_ed2[kk][0]**2+fg_ed2[kk][1]**2+fg_ed2[kk][2]**2)**0.5
+		vs.HScale2D(msh,0,0,vv*v_count/imw,vw*w_count/imh,False)
+		((b1x,b1y),(b2x,b2y)) = vs.GetBBox(msh)
+		icx = (b2x+b1x)/2
+		icy = (b2y+b1y)/2
+		vs.DelObject(msh)
 
+		(a1,a2,a3) = fg_ed1[kk]
+		l = (a1**2+a2**2+a3**2)**0.5
+		vs.SetWorkingPlaneN((cx,cy,cz),(normal.x,normal.y,normal.z),(a1/vv,a2/vv,a3/vv))
+		pl_id = vs.GetCurrentPlanarRefID()
+		msh = vs.ImportImageFile(img_path, (0,0))
+		vs.SetPlanarRef(msh, pl_id)
+		
+		vs.HScale2D(msh,cx,cy,vv*v_count/imw,vw*w_count/imh,False)
+		vs.HMove(msh,-icx,-icy)
+		vs.SetWorkingPlaneN( (0,0,0),(0,0,1),(1,0,0) )
+		vs.EndGroup()
+		((icx,icy),icz) = vs.Get3DCntr(igr)
+		vs.Move3DObj(igr , cx-icx, cy-icy,cz-icz)
+		vs.HUngroup(igr)
+		vw_mesh.append(msh)
+
+	return vw_mesh
    
 
 """____________3D GEOMETRY TRANSLATORS____________"""
+
 
 
 def from_vector3d(pts):
@@ -145,16 +299,11 @@ def from_plane(pl):
 
 def from_arc3d(arc):
 	if arc.is_circle:
-		vs.SetWorkingPlaneN((arc.plane.o.x,arc.plane.o.y,arc.plane.o.z),(arc.plane.n.x,arc.plane.n.y,arc.plane.n.z),(arc.plane.y.x,arc.plane.y.y,arc.plane.y.z))
-		pl_id = vs.GetCurrentPlanarRefID()
 		(ax,ay,az ) =arc.plane.o
 		(cx,cy,cz) =arc.c
 		vs.ArcByCenter(cx,cy,arc.radius,360,360)
-		obj = vs.LNewObj()
-		vs.Move3DObj(obj,0,0,cz)
-		vs.SetPlanarRef(obj, pl_id)
-		vs.SetWorkingPlaneN( (0,0,0),(0,0,1),(1,0,0) )
-		return obj
+		vs.Move3DObj(vs.LNewObj(),0,0,cz)
+		return vs.LNewObj()
 	else:
 		vs.SetWorkingPlaneN((arc.plane.o.x,arc.plane.o.y,arc.plane.o.z),(arc.plane.n.x,arc.plane.n.y,arc.plane.n.z),(arc.plane.y.x,arc.plane.y.y,arc.plane.y.z))
 		pl_id = vs.GetCurrentPlanarRefID()
