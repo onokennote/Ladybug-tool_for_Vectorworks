@@ -1,0 +1,22 @@
+on:
+  release:
+    types: [published]
+
+jobs:
+  actions_status_discord:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Actions Status Discord
+      uses: sarisia/actions-status-discord@v1.12.0
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        status: ${{ job.status }}
+        content: "Hey <@316911818725392384>"
+        title: "deploy"
+        description: "Build and deploy to GitHub Pages"
+        image: ${{ secrets.EMBED_IMAGE }}
+        color: 0x0000ff
+        url: "https://github.com/sarisia/actions-status-discord"
+        username: GitHub Actions
+        avatar_url: ${{ secrets.AVATAR_URL }}
