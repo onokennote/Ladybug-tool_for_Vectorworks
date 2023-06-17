@@ -278,18 +278,24 @@ def from_vector3d(pts):
 
 def from_point3d(pts):
 	p2 = (pts.x,pts.y,pts.z)
-	vs.Locus3D(p2)
-	return vs.LNewObj()
+	#vs.Locus3D(p2)
+	return p2
 
 '''
 def from_ray3d(ray):
 	return rg.Ray3d(from_point3d(ray.p), from_vector3d(ray.v))
 '''
 
-'''
+
 def from_linesegment3d(line):
-	return rg.LineCurve(from_point3d(line.p1), from_point3d(line.p2))
-'''
+	vs.BeginPoly3D()
+	vs.Add3DPt(line.p1.x,line.p1.y,line.p1.z)
+	vs.Add3DPt(line.p2.x,line.p2.y,line.p2.z)
+	vs.EndPoly3D()
+	obj = vs.LNewObj()
+	vs.SetFPat(obj, 0)
+	return obj
+
 
 '''
 def from_plane(pl):
@@ -567,9 +573,9 @@ def _translate_mesh(mesh, z):
 					pts.append((pt.x, pt.y , z))
 			vs.Poly3D(*pts)
 			po = vs.LNewObj()
-			#if mesh.colors is not None:
-			#	col = color_to_color(mesh.colors[i])
-			#	vs.SetFillBack(po,col)
+			if mesh.colors is not None:
+				col = color_to_color(mesh.colors[face[0]])
+				vs.SetFillBack(po,col)
 		vs.EndMesh()
 		vw_mesh = vs.LNewObj()
 		'''
