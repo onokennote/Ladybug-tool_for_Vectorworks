@@ -1,0 +1,15 @@
+on:
+  release:
+    types: [published]
+
+jobs:
+  github-releases-to-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Actions Status Discord
+        uses: sarisia/actions-status-discord@v1.12.0
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          status: ${{ job.status }}
