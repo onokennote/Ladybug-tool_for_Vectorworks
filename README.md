@@ -1,11 +1,11 @@
 ![Vectorworks Architect 2022 -  名称未設定 1  2023_06_16 20_51_38 (2)](https://github.com/onokennote/Ladybug-tool_for_Vectorworks/assets/113188583/f81150b9-0bb6-4e10-a125-9bf2870501ac)
 
-# Ladybug-tool_for_Vectorworks
-ここは、grasshopper等で環境シミュレーションが出来るプラグインの**ladyubug-tools**:lady_beetle:	を**Vectorworksのマリオネット**に移植するプロジェクトページです。
+# Ladybug-tool for Vectorworks
+ここは、grasshopper等で環境シミュレーションが出来るプラグインの**ladyubug tools** を**Vectorworksのマリオネット**に移植するプロジェクトページです。
 
 (現在、
  - ladybug:lady_beetle: honeybee,honeybee-radiance,honeybee-energy:honeybee: を移植中である程度動くようになった段階です。今後、ほとんどのGrasshopperのコンポーネントをマリオネット・ノードに変換予定です。
- - 将来的には butterfly:butterfly: doragonfly の移植にも挑戦予定です。
+ - 将来的には butterfly:butterfly: doragonfly ![6a51bd3aa8328fc803017009cd663f49](https://github.com/onokennote/Ladybug-tool_for_Vectorworks/assets/113188583/5bafd2fa-a91d-4715-ac39-6501b537a4df) の移植にも挑戦予定です。
 
 質問等は気軽に [**Discussions**](https://github.com/onokennote/Ladybug-tool_for_Vectorworks/discussions) の方にお願いします。	:mailbox:
 
@@ -20,7 +20,7 @@
 
 また、[こちら](https://github.com/onokennote/Ladybug-tool_for_Vectorworks/releases) より更新履歴を確認できます。
 
-## Ladybug-tools<sub> (参照元)</sub>
+## Ladybug tools<sub> (参照元)</sub>
 **Ladybug Tools** :lady_beetle:	は、環境に配慮した設計とシミュレーションをサポートする無料のコンピューター アプリケーションのコレクションです。
 
 
