@@ -24,7 +24,8 @@
 **Ladybug Tools** :lady_beetle:	は、環境に配慮した設計とシミュレーションをサポートする無料のコンピューター アプリケーションのコレクションです。
 
 
-→ladybug-tools : https://www.ladybug.tools/index.html
+→ladybug tools : https://www.ladybug.tools/index.html
+→ladybug tools(github) : https://github.com/ladybug-tools
 
 ------------------------------------------------------------------------------
 
@@ -56,4 +57,5 @@ You can also check the update history [here](https://github.com/onokennote/Ladyb
 ### Ladybug tools (source)
 Ladybug Tools 🐞 is a collection of free computer applications that support green design and simulation.
 
-→ladybug-tools : https://www.ladybug.tools/index.html
+→ladybug tools : https://www.ladybug.tools/index.html
+→ladybug tools(github) : https://github.com/ladybug-tools
