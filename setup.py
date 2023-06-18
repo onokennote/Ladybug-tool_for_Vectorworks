@@ -13,9 +13,8 @@ setuptools.setup(
 	long_description_content_type="text/markdown",
 	url="https://github.com/onokennote/Ladybug-tool_for_Vectorworks.git",
 	packages=setuptools.find_packages(exclude=["tests"]),
-	packages=find_packages(),
 	package_data={
-		'ladybug_vectorworks.icon_set': ['*.png'],
+		'ladybug_vectorworks/icon_set': ['*.png'],
 	},
 	license="AGPL-3.0"
 )
