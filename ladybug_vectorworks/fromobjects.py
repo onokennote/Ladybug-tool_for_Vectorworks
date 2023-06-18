@@ -2,8 +2,8 @@
 import math
 import vs
 
-from .fromgeometry import from_mesh3d, from_arc2d, from_linesegment2d
-from .text import text_objects
+from ladybug_vectorworks.fromgeometry import from_mesh3d, from_arc2d, from_linesegment2d
+from ladybug_vectorworks.text import text_objects
 
 try:
     from ladybug_geometry.geometry3d.pointvector import Point3D, Vector3D

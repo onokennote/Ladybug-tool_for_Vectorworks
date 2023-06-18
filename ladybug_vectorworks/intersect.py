@@ -3,7 +3,7 @@ import math
 import array as specializedarray
 import vs
 
-from ladybug.VW_togeometry import to_face3d
+from ladybug_vectorworks.togeometry import to_face3d
 from ladybug_geometry.geometry3d.plane import Plane
 from ladybug_geometry.geometry3d.face import Face3D
 from ladybug_geometry.geometry3d.mesh import Mesh3D
@@ -11,7 +11,7 @@ from ladybug_geometry.geometry3d.ray import Ray3D
 from ladybug_geometry.geometry3d.pointvector import Vector3D, Point3D
 
 
-from ladybug.config import tolerance, angle_tolerance
+from ladybug_vectorworks.config import tolerance, angle_tolerance
 
 from concurrent.futures import ThreadPoolExecutor
 

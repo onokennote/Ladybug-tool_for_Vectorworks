@@ -2,7 +2,7 @@ import vs
 import math 
 
 #from .config import tolerance
-from .color import color_to_color, gray
+from ladybug_vectorworks.color import color_to_color, gray
 
 try:
 	from ladybug_geometry.geometry2d.line import LineSegment2D
@@ -197,13 +197,15 @@ def draw_meshimage(mesh):
 			pw = [vts[face[0]][2] for face in faces]
 			v_dim = abs(vts[faces[0][2]][1]-vts[faces[0][0]][1])
 			w_dim = abs(vts[faces[0][2]][2]-vts[faces[0][0]][2])
-			if normal[0]>0:
+			pw.reverse()
+			if normal[0]<0:
 				pv.reverse()
 		else:
 			pv = [vts[face[0]][0] for face in faces] 
 			pw = [vts[face[0]][2] for face in faces]
 			v_dim = abs(vts[faces[0][2]][0]-vts[faces[0][0]][0])
 			w_dim = abs(vts[faces[0][2]][2]-vts[faces[0][0]][2])
+			pw.reverse()
 			if normal[1]<0:
 				pv.reverse()
 		v_min = min(pv)  
@@ -218,7 +220,6 @@ def draw_meshimage(mesh):
 		(av,aw) = (v_min,w_min)
 		
 		for k ,face in enumerate(faces):
-			#pt = vts[face[0]]
 			ppv = round((pv[k]-av)/v_dim)
 			ppw = round((pw[k]-aw)/w_dim)
 			col = fg_colors[kk][k]
@@ -226,28 +227,15 @@ def draw_meshimage(mesh):
 			
 		img_path = "D:\simulation"+"\mashimg.png"
 		img.save(img_path)
-		igr = None
-		igr = vs.BeginGroupN(igr)	
+		
 		msh = vs.ImportImageFile(img_path, (0,0))
 		((b1x,b1y),(b2x,b2y)) = vs.GetBBox(msh)
 		imw = b2x-b1x
 		imh = b2y-b1y
-		mir = False
-		if normal[2] !=0:
-			vv = (fg_ed1[kk][0]**2+fg_ed1[kk][1]**2+fg_ed1[kk][2]**2)**0.5
-			vw = (fg_ed2[kk][0]**2+fg_ed2[kk][1]**2+fg_ed2[kk][2]**2)**0.5
-		elif normal[1] ==0:
-			vv = -(fg_ed1[kk][0]**2+fg_ed1[kk][1]**2+fg_ed1[kk][2]**2)**0.5
-			vw = (fg_ed2[kk][0]**2+fg_ed2[kk][1]**2+fg_ed2[kk][2]**2)**0.5
-		else:
-			vv = -(fg_ed1[kk][0]**2+fg_ed1[kk][1]**2+fg_ed1[kk][2]**2)**0.5
-			vw = (fg_ed2[kk][0]**2+fg_ed2[kk][1]**2+fg_ed2[kk][2]**2)**0.5
-		vs.HScale2D(msh,0,0,vv*v_count/imw,vw*w_count/imh,False)
-		((b1x,b1y),(b2x,b2y)) = vs.GetBBox(msh)
-		icx = (b2x+b1x)/2
-		icy = (b2y+b1y)/2
 		vs.DelObject(msh)
-
+		
+		igr = None
+		igr = vs.BeginGroupN(igr)	
 		(a1,a2,a3) = fg_ed1[kk]
 		l = (a1**2+a2**2+a3**2)**0.5
 		vs.SetWorkingPlaneN((cx,cy,cz),(normal.x,normal.y,normal.z),(a1/vv,a2/vv,a3/vv))
@@ -255,8 +243,10 @@ def draw_meshimage(mesh):
 		msh = vs.ImportImageFile(img_path, (0,0))
 		vs.SetPlanarRef(msh, pl_id)
 		
+		vv = (fg_ed1[kk][0]**2+fg_ed1[kk][1]**2+fg_ed1[kk][2]**2)**0.5
+		vw = (fg_ed2[kk][0]**2+fg_ed2[kk][1]**2+fg_ed2[kk][2]**2)**0.5
 		vs.HScale2D(msh,cx,cy,vv*v_count/imw,vw*w_count/imh,False)
-		vs.HMove(msh,-icx,-icy)
+		#vs.HMove(msh,-icx,-icy)
 		vs.SetWorkingPlaneN( (0,0,0),(0,0,1),(1,0,0) )
 		vs.EndGroup()
 		((icx,icy),icz) = vs.Get3DCntr(igr)
