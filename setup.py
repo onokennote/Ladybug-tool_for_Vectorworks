@@ -14,10 +14,7 @@ setuptools.setup(
 	url="https://github.com/onokennote/Ladybug-tool_for_Vectorworks.git",
 	packages=setuptools.find_packages(exclude=["tests"]),
 	package_data={
-		'ladybug_vectorworks': ['icon_set/*.png'],
-		'ladybug_vectorworks': ['etc/*.vwx'],
-		'ladybug_vectorworks': ['etc/*.pdf'],
-		'ladybug_vectorworks': ['etc/*.epw'],
+		'ladybug_vectorworks': ['icon_set/*.png','etc/*.vwx','etc/*.pdf','etc/*.epw'],
 	},
 	license="AGPL-3.0"
 )
