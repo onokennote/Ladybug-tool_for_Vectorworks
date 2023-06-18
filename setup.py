@@ -1,7 +1,7 @@
 import setuptools
 
 with open("README.md", "r", encoding='utf-8') as fh:
-	long_description = fh.read().encode("utf-8")
+	long_description = fh.read()
 setuptools.setup(
 	name="ladybug_vectorworks",
 	use_scm_version=True,
