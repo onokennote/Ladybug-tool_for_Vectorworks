@@ -15,6 +15,12 @@ setuptools.setup(
 	packages=setuptools.find_packages(exclude=["tests"]),
 	package_data={
 		'ladybug_vectorworks': ['icon_set/*.png'],
+<<<<<<< HEAD
+		'ladybug_vectorworks': ['etc/*.vwx'],
+		'ladybug_vectorworks': ['etc/*.pdf'],
+		'ladybug_vectorworks': ['etc/*.epw'],
+=======
+>>>>>>> d83f573d3abec43a29c6633cddf7cc3da3fc9953
 	},
 	license="AGPL-3.0"
 )
