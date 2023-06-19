@@ -39,12 +39,16 @@ def set_icon(node_handle,ox,oy): #, ver = "1.6.0"):
 		vs.SetPrefInt(86,2)
 		ih0 =  vs.ImportImageFile(path, (0,0))
 		ih =  vs.CreateDuplicateObject(ih0, vs.GetParent(node_handle))
+		
 		vs.SetName(ih , iname)
 		vs.DelObject(ih0)
 	((p1x,p1y),(p2x,p2y))=vs.GetBBox(ih)
-	(p3x,p3y)=vs.Get2DPt(node_handle)
+	iw = p2x-p1x
 	(fraction, display, format, upi, name, squareName) =  vs.GetUnits()
 	scale = vs.GetLScale(vs.ActLayer())/50*upi/25.4
+	if iw*scale != 330:
+		vs.HScale2D(ih, (p2x+p1x)/2 ,(p2y+p1y)/2 , 330/iw*scale, 330/iw*scale, False)
+	(p3x,p3y)=vs.Get2DPt(node_handle)
 	ppx = p3x-(p2x+p1x)/2+ scale*ox
 	ppy = p3y-(p2y+p1y)/2+ scale*oy
 	vs.HMove(ih,ppx ,ppy )

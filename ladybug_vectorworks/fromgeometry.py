@@ -113,6 +113,7 @@ def from_mesh2d(mesh, z=0):
 	return h
 
 def draw_meshimage(mesh):
+	from PIL import Image,ImageDraw
 	facegroups = []
 	fg_colors = []
 	fg_normals = []		
@@ -214,7 +215,6 @@ def draw_meshimage(mesh):
 		w_max = max(pw)
 		v_count = int((v_max-v_min)/v_dim)+1
 		w_count = int((w_max-w_min)/w_dim)+1
-		from PIL import Image,ImageDraw
 		img = Image.new("RGBA",(v_count*2,w_count*2))
 		draw = ImageDraw.Draw(img)
 		(av,aw) = (v_min,w_min)
