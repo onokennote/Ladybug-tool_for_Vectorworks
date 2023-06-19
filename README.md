@@ -12,9 +12,14 @@
 （協力していただける方がいれば歓迎です。ご連絡いただければ Discord への招待をお送りします。）
 
 ## インストール
-[リポジトリ・トップページ](https://github.com/onokennote/Ladybug-tool_for_Vectorworks) 画面右のReleases 最新版(latest)をダウンロード:arrow_down:してください。
+（例）
+```
+python -m pip install git+https://github.com/onokennote/Ladybug-tool_for_Vectorworks.git --user
+```
+インストール後にインストールされた「ladybug_vectorworks」=>「etc」フォルダ内の **HowToInstall.pdf** 又は **HowToInstall.vwx** をご覧ください。
+もしくは、[こちら](https://github.com/onokennote/Ladybug-tool_for_Vectorworks/blob/main/ladybug_vectorworks/etc/HowToInstall.pdf)をご覧ください。
 
-導入方法は同梱の **HowToInstall.pdf** 又は **HowToInstall.vwx** をご覧ください。
+インストール後の「ladybug_vectorworks」=>「etc」フォルダ内には上記のインストール方法のpdf&vwx、ノード一覧(Node_list.vwx)、サンプルファイル(Ladybug-sample.vwx)が同梱されています。
 
 管理者の環境により、Vectorworks2022でファイルを作成・動作テストを行っております。（vw2018も書き出していますが、動作テストは行っていません。）
 
@@ -46,9 +51,14 @@ Please feel free to ask questions to [Discussions](https://github.com/onokennote
 (Anyone who would like to help is welcome. Get in touch and he'll send you a Discord invite.)
 
 ### install
-Please download ⬇️ the latest version of Releases on the right side of the [repository top page screen](https://github.com/onokennote/Ladybug-tool_for_Vectorworks).
+(example)
+```
+python -m pip install git+https://github.com/onokennote/Ladybug-tool_for_Vectorworks.git --user
+```
+Please see **HowToInstall.pdf** or **HowToInstall.vwx** in the "ladybug_vectorworks" => "etc" folder installed after installation.
+Or see [here](https://github.com/onokennote/Ladybug-tool_for_Vectorworks/blob/main/ladybug_vectorworks/etc/HowToInstall.pdf).
 
-Please refer to the included HowToInstall.pdf or HowToInstall.vwx for the installation method.
+After installation, "ladybug_vectorworks" => "etc" folder contains pdf&vwx, node list (Node_list.vwx) and sample file (Ladybug-sample.vwx) for the above installation method.
 
 We are creating and testing files with Vectorworks2022 in the administrator's environment. (I have also written vw2018, but I have not tested it.)
 
