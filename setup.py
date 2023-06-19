@@ -16,6 +16,7 @@ setuptools.setup(
 	package_data={
 		'ladybug_vectorworks': ['icon_set/*.png','etc/*.vwx','etc/*.pdf','etc/*.epw'],
 	},
+	install_requires=_requires_from_file('requirements.txt'),
 	install_requires=requirements,
 	license="AGPL-3.0"
 )
