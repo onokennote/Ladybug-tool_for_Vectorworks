@@ -2,6 +2,8 @@ import setuptools
 
 with open("README.md", "r", encoding='utf-8') as fh:
 	long_description = fh.read()
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
 setuptools.setup(
 	name="ladybug_vectorworks",
 	use_scm_version=True,
@@ -16,7 +18,6 @@ setuptools.setup(
 	package_data={
 		'ladybug_vectorworks': ['icon_set/*.png','etc/*.vwx','etc/*.pdf','etc/*.epw'],
 	},
-	install_requires=_requires_from_file('requirements.txt'),
 	install_requires=requirements,
 	license="AGPL-3.0"
 )
