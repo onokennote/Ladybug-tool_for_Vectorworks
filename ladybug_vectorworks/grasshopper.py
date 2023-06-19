@@ -36,10 +36,10 @@ def set_icon(node_handle,ox,oy): #, ver = "1.6.0"):
 	if ih == None:
 		path= hb_folders.python_package_path+"/ladybug_vectorworks/icon_set/"+name+".png"
 		path = path.replace(os.sep,'/')
-		vs.SetPrefInt(86,2)
-		ih0 =  vs.ImportImageFile(path, (0,0))
+		h0 = vs.ImportImageFileN(path, (0,0),1)
+		vs.DelObject(h0)
+		ih0 =  vs.ImportImageFileN(path, (0,0),1)
 		ih =  vs.CreateDuplicateObject(ih0, vs.GetParent(node_handle))
-		
 		vs.SetName(ih , iname)
 		vs.DelObject(ih0)
 	((p1x,p1y),(p2x,p2y))=vs.GetBBox(ih)

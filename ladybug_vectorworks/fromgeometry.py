@@ -1,6 +1,6 @@
 import vs
 import math 
-
+from honeybee.config import folders as hb_folders
 #from .config import tolerance
 from ladybug_vectorworks.color import color_to_color, gray
 
@@ -113,7 +113,6 @@ def from_mesh2d(mesh, z=0):
 	return h
 
 def draw_meshimage(mesh):
-	from PIL import Image,ImageDraw
 	facegroups = []
 	fg_colors = []
 	fg_normals = []		
@@ -124,7 +123,9 @@ def draw_meshimage(mesh):
 	fgc = []
 	vset = set()
 	vts = [ (pt.x , pt.y , pt.z) for pt in mesh.vertices]
-	
+	path= hb_folders.python_package_path+"/ladybug_vectorworks/icon_set/LB ImportEPW.png"
+	h0 = vs.ImportImageFileN(path, (0,0),1)
+	vs.DelObject(h0)
 	for i , face in enumerate(mesh.faces):
 		ed1 = (vts[face[1]][0] - vts[face[0]][0] , vts[face[1]][1] - vts[face[0]][1] , vts[face[1]][2] - vts[face[0]][2] )
 		ed2 = (vts[face[2]][0] - vts[face[1]][0] , vts[face[2]][1] - vts[face[1]][1] , vts[face[2]][2] - vts[face[1]][2] )
@@ -215,6 +216,7 @@ def draw_meshimage(mesh):
 		w_max = max(pw)
 		v_count = int((v_max-v_min)/v_dim)+1
 		w_count = int((w_max-w_min)/w_dim)+1
+		from PIL import Image,ImageDraw
 		img = Image.new("RGBA",(v_count*2,w_count*2))
 		draw = ImageDraw.Draw(img)
 		(av,aw) = (v_min,w_min)
@@ -240,7 +242,7 @@ def draw_meshimage(mesh):
 		l = (a1**2+a2**2+a3**2)**0.5
 		vs.SetWorkingPlaneN((cx,cy,cz),(normal.x,normal.y,normal.z),(a1/vv,a2/vv,a3/vv))
 		pl_id = vs.GetCurrentPlanarRefID()
-		msh = vs.ImportImageFile(img_path, (0,0))
+		msh = vs.ImportImageFileN(img_path, (0,0),1)
 		vs.SetPlanarRef(msh, pl_id)
 		
 		vv = (fg_ed1[kk][0]**2+fg_ed1[kk][1]**2+fg_ed1[kk][2]**2)**0.5
