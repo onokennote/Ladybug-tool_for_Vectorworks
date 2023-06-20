@@ -9,6 +9,7 @@ setuptools.setup(
 	use_scm_version=True,
 	setup_requires=['setuptools_scm'],
 	author="onokennote",
+	version="0.2.0"
 	author_email="info@onoken-web.com",
 	description="A library for communicating between Ladybug Tools core libraries and Vectorwroks CAD.",
 	long_description=long_description,
