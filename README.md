@@ -14,7 +14,7 @@
 ## インストール
 （例）
 ```
-python -m pip install git+https://github.com/onokennote/Ladybug-tool_for_Vectorworks.git --user
+python -m pip install ladybug-vectorworks
 ```
 インストール後にインストールされた「ladybug_vectorworks」=>「etc」フォルダ内の **HowToInstall.pdf** 又は **HowToInstall.vwx** をご覧ください。
 もしくは、[こちら](https://github.com/onokennote/Ladybug-tool_for_Vectorworks/blob/main/ladybug_vectorworks/etc/HowToInstall.pdf)をご覧ください。
@@ -53,7 +53,7 @@ Please feel free to ask questions to [Discussions](https://github.com/onokennote
 ### install
 (example)
 ```
-python -m pip install git+https://github.com/onokennote/Ladybug-tool_for_Vectorworks.git --user
+python -m pip install ladybug-vectorworks
 ```
 Please see **HowToInstall.pdf** or **HowToInstall.vwx** in the "ladybug_vectorworks" => "etc" folder installed after installation.
 Or see [here](https://github.com/onokennote/Ladybug-tool_for_Vectorworks/blob/main/ladybug_vectorworks/etc/HowToInstall.pdf).
