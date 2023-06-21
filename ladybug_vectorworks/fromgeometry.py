@@ -519,31 +519,18 @@ def from_mesh2d_to_outline(mesh, z=0):
 def from_mesh3d_to_outline(mesh):
 	mesh = mesh.offset_mesh( 100/vs.GetLScale(vs.ActLayer()) )
 	rh_mesh = from_mesh3d_to_poly(mesh)
-	'''
-	r0 = vs.CreateDuplicateObject(rh_mesh[0],vs.Handle(0))
-	r1 = vs.CreateDuplicateObject(rh_mesh[1],vs.Handle(0))
-	re , outlines = vs.AddSolid(r0, r1)
-	h0 = vs.FIn3D( outlines )
-	for i in range(2,len(rh_mesh)):
-		vs.CreateDuplicateObject(rh_mesh[i],vs.GetParent(h0))
-	'''
-	faces = []
-	for obj in rh_mesh:
-		faces.append(obj)
-		obj = vs.NextObj( obj )
-	outlines =[]
-	outline = faces[0]
-	for i in range(1,len(faces)):
-		re ,outline2 = vs.AddSolid(outline, faces[i])
-		if re>0:
-			outlines.append(outline)
-			outline = faces[i]
-		else:
-			outline = outline2
-	outlines.append(outline)
 	
-	return rh_mesh,outlines
+	first_poly = vs.CreateDuplicateObject(rh_mesh[0],vs.Handle(0))
 
+	vs.BeginMesh()
+	for poly in rh_mesh[1:]:
+		vs.CreateDuplicateObject(poly,vs.Handle(0))
+	vs.EndMesh()
+	vw_mesh = vs.LNewObj()
+
+	result, solid = vs.AddSolid( first_poly, vw_mesh )
+	vs.SetFPat(solid, 0)
+	return rh_mesh,solid
 
 """________________EXTRA HELPER FUNCTIONS________________"""
 
