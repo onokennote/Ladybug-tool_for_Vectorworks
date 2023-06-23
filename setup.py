@@ -6,8 +6,7 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 setuptools.setup(
 	name="ladybug_vectorworks",
-	use_scm_version=True,
-	setup_requires=['setuptools_scm'],
+	version="0.2.1",
 	author="onokennote",
 	author_email="info@onoken-web.com",
 	description="A library for communicating between Ladybug Tools core libraries and Vectorwroks CAD.",

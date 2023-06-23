@@ -9,7 +9,7 @@ try:
 except ImportError as e:
 	raise ImportError('Failed to import ladybug_geometry.\n{}'.format(e))
 from ladybug_geometry.geometry3d.mesh import Mesh3D
-
+from honeybee.config import folders as hb_folders
 '''
 def obj2plane(obj , plane ):
 	(ax,ay,az ) =plane.o
@@ -227,7 +227,7 @@ def draw_meshimage(mesh):
 			col = fg_colors[kk][k]
 			draw.rectangle(((ppv*2,ppw*2),(ppv*2+1,ppw*2+1)),(col.r,col.g,col.b,255))
 			
-		img_path = "D:\simulation"+"\mashimg.png"
+		img_path = hb_folders.default_simulation_folder+"/mashimg.png"
 		img.save(img_path)
 		
 		msh = vs.ImportImageFile(img_path, (0,0))
@@ -519,18 +519,31 @@ def from_mesh2d_to_outline(mesh, z=0):
 def from_mesh3d_to_outline(mesh):
 	mesh = mesh.offset_mesh( 100/vs.GetLScale(vs.ActLayer()) )
 	rh_mesh = from_mesh3d_to_poly(mesh)
+	'''
+	r0 = vs.CreateDuplicateObject(rh_mesh[0],vs.Handle(0))
+	r1 = vs.CreateDuplicateObject(rh_mesh[1],vs.Handle(0))
+	re , outlines = vs.AddSolid(r0, r1)
+	h0 = vs.FIn3D( outlines )
+	for i in range(2,len(rh_mesh)):
+		vs.CreateDuplicateObject(rh_mesh[i],vs.GetParent(h0))
+	'''
+	faces = []
+	for obj in rh_mesh:
+		faces.append(obj)
+		obj = vs.NextObj( obj )
+	outlines =[]
+	outline = faces[0]
+	for i in range(1,len(faces)):
+		re ,outline2 = vs.AddSolid(outline, faces[i])
+		if re>0:
+			outlines.append(outline)
+			outline = faces[i]
+		else:
+			outline = outline2
+	outlines.append(outline)
 	
-	first_poly = vs.CreateDuplicateObject(rh_mesh[0],vs.Handle(0))
+	return rh_mesh,outlines
 
-	vs.BeginMesh()
-	for poly in rh_mesh[1:]:
-		vs.CreateDuplicateObject(poly,vs.Handle(0))
-	vs.EndMesh()
-	vw_mesh = vs.LNewObj()
-
-	result, solid = vs.AddSolid( first_poly, vw_mesh )
-	vs.SetFPat(solid, 0)
-	return rh_mesh,solid
 
 """________________EXTRA HELPER FUNCTIONS________________"""
 
