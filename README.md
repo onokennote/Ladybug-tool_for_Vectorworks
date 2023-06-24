@@ -3,6 +3,8 @@
 # Ladybug-tool for Vectorworks
 ここは、grasshopper等で環境シミュレーションが出来るプラグインの**ladyubug tools** を**Vectorworksのマリオネット**に移植するプロジェクトページです。
 
+###### ladybug tools と ladybug tool が混在していますが、レポジトリ名を変えるのは控えてこのままいきます。
+
 (現在、
  - ladybug:lady_beetle: honeybee,honeybee-radiance,honeybee-energy:honeybee: を移植中である程度動くようになった段階です。今後、ほとんどのGrasshopperのコンポーネントをマリオネット・ノードに変換予定です。
  - 将来的には butterfly:butterfly: doragonfly ![6a51bd3aa8328fc803017009cd663f49](https://github.com/onokennote/Ladybug-tool_for_Vectorworks/assets/113188583/5bafd2fa-a91d-4715-ac39-6501b537a4df) の移植にも挑戦予定です。
