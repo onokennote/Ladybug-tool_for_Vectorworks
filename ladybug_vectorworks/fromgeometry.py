@@ -10,6 +10,7 @@ except ImportError as e:
 	raise ImportError('Failed to import ladybug_geometry.\n{}'.format(e))
 from ladybug_geometry.geometry3d.mesh import Mesh3D
 from honeybee.config import folders as hb_folders
+from PIL import Image, ImageFilter
 '''
 def obj2plane(obj , plane ):
 	(ax,ay,az ) =plane.o
@@ -123,7 +124,7 @@ def draw_meshimage(mesh):
 	fgc = []
 	vset = set()
 	vts = [ (pt.x , pt.y , pt.z) for pt in mesh.vertices]
-	path= hb_folders.python_package_path+"/ladybug_vectorworks/icon_set/LB ImportEPW.png"
+	path= hb_folders.python_package_path+"\ladybug_vectorworks\icon_set\icon_LB ImportEPW.png"
 	h0 = vs.ImportImageFileN(path, (0,0),1)
 	vs.DelObject(h0)
 	for i , face in enumerate(mesh.faces):
