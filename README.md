@@ -1,6 +1,8 @@
 ![Vectorworks Architect 2022 -  名称未設定 1  2023_06_16 20_51_38 (2)](https://github.com/onokennote/Ladybug-tool_for_Vectorworks/assets/113188583/f81150b9-0bb6-4e10-a125-9bf2870501ac)
 
 # Ladybug-tool for Vectorworks
+[![Downloads](https://static.pepy.tech/personalized-badge/ladybug-vectorworks?period=total&units=international_system&left_color=red&right_color=black&left_text=Downloads%20from%20PyPI)](https://pepy.tech/project/ladybug-vectorworks)
+
 ここは、grasshopper等で環境シミュレーションが出来るプラグインの**ladyubug tools** を**Vectorworksのマリオネット**に移植するプロジェクトページです。
 
 ###### ladybug tools と ladybug tool が混在していますが、レポジトリ名を変えるのは控えてこのままいきます。
