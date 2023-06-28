@@ -9,7 +9,7 @@ except ImportError as e:
 import vs
 
 tolerance = 0.01
-angle_tolerance = 1.0  
+angle_tolerance = 1.0
 
 #from .ghpath import find_grasshopper_userobjects, find_grasshopper_libraries
 
@@ -35,7 +35,7 @@ def units_system():
 	#	 import scriptcontext
 	#	 return str(scriptcontext.doc.ModelUnitSystem).split('.')[-1]
 	#except ImportError:  # No Rhino doc available. Default to the greatest of all units
-	
+
 
 def units_abbreviation():
 	(fraction, display, format, upi, name, squareName) =  vs.GetUnits()
