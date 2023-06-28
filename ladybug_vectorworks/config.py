@@ -15,7 +15,8 @@ angle_tolerance = 1.0
 
 
 def conversion_to_meters():
-	return 0.001
+	(fraction, display, format, upi, name, squareName) =  vs.GetUnits()
+	return 0.0254/upi
 
 
 def units_system():
