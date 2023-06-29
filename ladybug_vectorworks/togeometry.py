@@ -52,12 +52,12 @@ def to_point2d(point):
 
 
 def to_ray2d(ray):
-	
+
 	return Ray2D(to_point2d(ray.Position), to_vector2d(ray.Direction))
 
 
 def to_linesegment2d(line):
-	
+
 	return LineSegment2D.from_end_points(
 		to_point2d(line.PointAtStart), to_point2d(line.PointAtEnd))
 
@@ -78,7 +78,7 @@ def to_polygon2d(polygon):
 
 
 def to_mesh2d(mesh, color_by_face=True):
-	
+
 	lb_verts = tuple(to_point2d(pt) for pt in mesh.Vertices)
 	lb_faces, colors = _extract_mesh_faces_colors(mesh, color_by_face)
 	return Mesh2D(lb_verts, lb_faces, colors)
@@ -93,7 +93,7 @@ def to_vector3d(vector):
 		return Vector3D(px,py,pz)
 	else:
 		(px,py) = vector
-		return Vector3D(px,py,0)	
+		return Vector3D(px,py,0)
 
 
 def to_point3d(point):
@@ -102,17 +102,17 @@ def to_point3d(point):
 		return Point3D(px,py,pz)
 	else:
 		(px,py) = point
-		return Point3D(px,py,0)	
+		return Point3D(px,py,0)
 
 '''
 def to_ray3d(ray):
-	
+
 	return Ray3D(to_point3d(ray.Position), to_vector3d(ray.Direction))
 '''
 
 '''
 def to_linesegment3d(line):
-	
+
 	return LineSegment3D.from_end_points(
 		to_point3d(line.PointAtStart), to_point3d(line.PointAtEnd))
 '''
@@ -135,7 +135,7 @@ def to_face3d(geo, meshing_parameters=None):
 	poly = []
 	faces = []
 	h = vs.FInGroup(grpPoly)
-	
+
 	while h != None:
 		poly.append(h)
 		h = vs.NextObj(h)
@@ -148,7 +148,7 @@ def to_face3d(geo, meshing_parameters=None):
 		faces.append(face)
 	for h in poly:
 		vs.Marionette_DisposeObj(h)
-	
+
 	return faces
 	'''
 	faces = []	# list of Face3Ds to be populated and returned
@@ -208,7 +208,7 @@ def to_face3d(geo, meshing_parameters=None):
 
 def to_polyface3d(geo, meshing_parameters=None):
 	return Polyface3D.from_faces(to_face3d(geo, meshing_parameters), tolerance)
-'''	
+'''
 	mesh_par = meshing_parameters or rg.MeshingParameters.Default  # default
 	if vs.GetType(geo)!=40: and _planar.has_curved_face(geo):  # keep solidity
 		new_brep = from_face3ds_to_joined_brep(_planar.curved_solid_faces(geo, mesh_par))
@@ -218,15 +218,34 @@ def to_polyface3d(geo, meshing_parameters=None):
 
 
 def to_mesh3d(mesh, color_by_face=True):
-	return to_gridded_mesh3d(mesh, 1000000)
-	'''
-	lb_verts = []
-	for i in range(0,vs.GetMeshVertNum(h)):
-		lb_verts.append.vs.GetMeshVertex(h,i)
-	lb_verts = tuple(to_point3d(pt) for pt in mesh.Vertices)
-	lb_faces, colors = _extract_mesh_faces_colors(mesh, color_by_face)
-	return Mesh3D(lb_verts, lb_faces, colors)
-	'''
+	grpPoly = vs.ConvertTo3DPolys(mesh)
+	poly = []
+	mesh_grids = []
+
+	h = vs.FInGroup(grpPoly)
+
+	while h != None:
+		poly.append(h)
+		h = vs.NextObj(h)
+
+	pts = []
+
+	for h in poly:
+		facep = []
+		pt = []
+		for i in range(0,vs.GetVertNum(h)):
+			(px,py,pz) = vs.GetPolyPt3D(h,i)
+			pt = (Point3D(px,py,pz))
+			if pt not in pts:
+				pts.append(Point3D(px,py,pz))
+			facep.append(pts.index(pt))
+		mesh_grids.append(tuple(facep))
+
+	for h in poly:
+		vs.Marionette_DisposeObj(h)
+
+	return Mesh3D(pts,mesh_grids)
+
 
 
 """________ADDITIONAL 3D GEOMETRY TRANSLATORS________"""
@@ -236,9 +255,9 @@ def to_gridded_mesh3d(brep, grid_size, offset_distance=0):
 	grpPoly = vs.ConvertTo3DPolys(brep)
 	poly = []
 	mesh_grids = []
-	
+
 	h = vs.FInGroup(grpPoly)
-	
+
 	while h != None:
 		poly.append(h)
 		h = vs.NextObj(h)
@@ -248,13 +267,13 @@ def to_gridded_mesh3d(brep, grid_size, offset_distance=0):
 			(px,py,pz) = vs.GetPolyPt3D(h,i)
 			pt.append(Point3D(px,py,pz))
 		face = Face3D(pt)
-		mesh_grids.append(face.mesh_grid(grid_size,grid_size,offset_distance))	
-	
+		mesh_grids.append(face.mesh_grid(grid_size,grid_size,offset_distance))
+
 	for h in poly:
 		vs.Marionette_DisposeObj(h)
-		
+
 	return Mesh3D.join_meshes(mesh_grids)
-	
+
 	'''
 	meshing_param = rg.MeshingParameters.Default
 	meshing_param.MaximumEdgeLength = grid_size
@@ -280,7 +299,7 @@ def to_gridded_mesh3d(brep, grid_size, offset_distance=0):
 
 
 def to_joined_gridded_mesh3d(geometry, grid_size, offset_distance=0):
-	
+
 	lb_meshes = []
 	for geo in geometry:
 		lb_meshes.append(to_gridded_mesh3d(geo, grid_size, offset_distance))
@@ -322,7 +341,7 @@ def _extract_mesh_faces_colors(mesh, color_by_face):
 
 '''
 def _remove_dup_verts(vertices):
-	
+
 	return [pt for i, pt in enumerate(vertices)
 			if not pt.is_equivalent(vertices[i - 1], tolerance)]
 '''

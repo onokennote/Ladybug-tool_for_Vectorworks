@@ -46,13 +46,13 @@ def set_icon(node_handle,ox,oy): #, ver = "1.6.0"):
 	iw = p2x-p1x
 	(fraction, display, format, upi, name, squareName) =  vs.GetUnits()
 	scale = vs.GetLScale(vs.ActLayer())/50*upi/25.4
-	if iw*scale != 330:
+	if iw*scale != 330 and iw !=0:
 		vs.HScale2D(ih, (p2x+p1x)/2 ,(p2y+p1y)/2 , 330/iw*scale, 330/iw*scale, False)
 	(p3x,p3y)=vs.Get2DPt(node_handle)
 	ppx = p3x-(p2x+p1x)/2+ scale*ox
 	ppy = p3y-(p2y+p1y)/2+ scale*oy
 	vs.HMove(ih,ppx ,ppy )
-	return 
+	return
 	'''
 	vs.MoveTo(0,0)
 	tname = "ver_"+ nname
@@ -71,7 +71,7 @@ def set_icon(node_handle,ox,oy): #, ver = "1.6.0"):
 	(p3x,p3y)=vs.Get2DPt(node_handle)
 	ppx = p3x-(p2x+p1x)/2+ scale*ox
 	ppy = p3y-(p2y+p1y)/2+ scale*(oy-550)
-	vs.HMove(th,ppx ,ppy )	
+	vs.HMove(th,ppx ,ppy )
 	'''
 
 def give_warning(component2, message):
@@ -96,7 +96,7 @@ def give_warning(component2, message):
 	(p3x,p3y)=vs.Get2DPt(component2)
 	vs.HMove(hhh,p3x,p3y)
 	vs.DelObject(hh0)
-	
+
 '''
 
 def give_remark(component, message):

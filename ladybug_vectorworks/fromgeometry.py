@@ -1,5 +1,5 @@
 import vs
-import math 
+import math
 from honeybee.config import folders as hb_folders
 #from .config import tolerance
 from ladybug_vectorworks.color import color_to_color, gray
@@ -18,7 +18,7 @@ def obj2plane(obj , plane ):
 	vy = plane.y
 	vs.Move3DObj(obj,ax,ay,az)
 	return obj
-'''	
+'''
 
 """____________2D GEOMETRY TRANSLATORS____________"""
 
@@ -56,26 +56,26 @@ def from_arc2d(arc, z=0):
 		vs.SetFPat(obj, 0)
 		vs.SetPlanarRef(obj, -1)
 		return obj
-	else: 
+	else:
 		r1 = math.degrees(arc.a1)
 		r2 = math.degrees(arc.a2)
 		(cx,cy)=arc.c
 		vs.ArcByCenter(cx,cy,r1-90,(r2-r1))
-		obj = vs.LNewObj() 
+		obj = vs.LNewObj()
 		vs.SetFPat(obj, 0)
 		vs.SetPlanarRef(obj, -1)
 		return obj
 
 
 def from_polygon2d(polygon, z=0):
-	pts = [pt for pt in polygon.vertices]
+	pts = [tuple(pt) for pt in polygon.vertices]
 	vs.Poly(*pts)
 	obj = vs.LNewObj()
 	vs.SetFPat(obj, 0)
 	vs.SetPlanarRef(obj, -1)
 	return obj
-	
-		
+
+
 '''
 	return rg.PolylineCurve(
 		[from_point2d(pt, z) for pt in polygon.vertices] + [from_point2d(polygon[0], z)])
@@ -86,7 +86,7 @@ def from_polyline2d(polyline, z=0):
 		d=3
 	else:
 		d=1
-	pts = [pt for pt in polyline.vertices]
+	pts = [tuple(pt) for pt in polyline.vertices]
 	p = pts.pop(0)
 	if len(p) == 2:
 		p = (p[0], p[1], z)
@@ -116,7 +116,7 @@ def from_mesh2d(mesh, z=0):
 def draw_meshimage(mesh):
 	facegroups = []
 	fg_colors = []
-	fg_normals = []		
+	fg_normals = []
 	fg_vsets = []
 	fg_ed1 = []
 	fg_ed2 = []
@@ -167,11 +167,11 @@ def draw_meshimage(mesh):
 	facegroups.append(fg)
 	fg_colors.append(fgc)
 	fg_vsets.append(vset)
-	
+
 	vs.SetPrefInt(86,2)
 	vw_mesh = []
 	for kk , faces in enumerate(facegroups):
-		x_co =  [vts[v][0] for v in fg_vsets[kk]] 
+		x_co =  [vts[v][0] for v in fg_vsets[kk]]
 		y_co =  [vts[v][1] for v in fg_vsets[kk]]
 		z_co =  [vts[v][2] for v in fg_vsets[kk]]
 		x_min = min (x_co)
@@ -185,7 +185,7 @@ def draw_meshimage(mesh):
 		cz = (z_max+ z_min)/2
 		normal = fg_normals[kk]
 		if normal[2] !=0:
-			pv = [vts[face[0]][0] for face in faces] 
+			pv = [vts[face[0]][0] for face in faces]
 			pw = [vts[face[0]][1] for face in faces]
 			v_dim = abs(vts[faces[0][2]][0]-vts[faces[0][0]][0])
 			w_dim = abs(vts[faces[0][2]][1]-vts[faces[0][0]][1])
@@ -196,7 +196,7 @@ def draw_meshimage(mesh):
 				v_dim , w_dim = w_dim , v_dim
 				pw.reverse()
 		elif normal[1] ==0:
-			pv = [vts[face[0]][1] for face in faces] 
+			pv = [vts[face[0]][1] for face in faces]
 			pw = [vts[face[0]][2] for face in faces]
 			v_dim = abs(vts[faces[0][2]][1]-vts[faces[0][0]][1])
 			w_dim = abs(vts[faces[0][2]][2]-vts[faces[0][0]][2])
@@ -204,16 +204,16 @@ def draw_meshimage(mesh):
 			if normal[0]<0:
 				pv.reverse()
 		else:
-			pv = [vts[face[0]][0] for face in faces] 
+			pv = [vts[face[0]][0] for face in faces]
 			pw = [vts[face[0]][2] for face in faces]
 			v_dim = abs(vts[faces[0][2]][0]-vts[faces[0][0]][0])
 			w_dim = abs(vts[faces[0][2]][2]-vts[faces[0][0]][2])
 			pw.reverse()
 			if normal[1]<0:
 				pv.reverse()
-		v_min = min(pv)  
-		v_max = max(pv)  
-		w_min = min(pw)  
+		v_min = min(pv)
+		v_max = max(pv)
+		w_min = min(pw)
 		w_max = max(pw)
 		v_count = int((v_max-v_min)/v_dim)+1
 		w_count = int((w_max-w_min)/w_dim)+1
@@ -221,31 +221,31 @@ def draw_meshimage(mesh):
 		img = Image.new("RGBA",(v_count*2,w_count*2))
 		draw = ImageDraw.Draw(img)
 		(av,aw) = (v_min,w_min)
-		
+
 		for k ,face in enumerate(faces):
 			ppv = round((pv[k]-av)/v_dim)
 			ppw = round((pw[k]-aw)/w_dim)
 			col = fg_colors[kk][k]
 			draw.rectangle(((ppv*2,ppw*2),(ppv*2+1,ppw*2+1)),(col.r,col.g,col.b,255))
-			
+
 		img_path = hb_folders.default_simulation_folder+"/mashimg.png"
 		img.save(img_path)
-		
+
 		msh = vs.ImportImageFile(img_path, (0,0))
 		((b1x,b1y),(b2x,b2y)) = vs.GetBBox(msh)
 		imw = b2x-b1x
 		imh = b2y-b1y
 		vs.DelObject(msh)
-		
+
 		igr = None
-		igr = vs.BeginGroupN(igr)	
+		igr = vs.BeginGroupN(igr)
 		(a1,a2,a3) = fg_ed1[kk]
 		l = (a1**2+a2**2+a3**2)**0.5
 		vs.SetWorkingPlaneN((cx,cy,cz),(normal.x,normal.y,normal.z),(a1/vv,a2/vv,a3/vv))
 		pl_id = vs.GetCurrentPlanarRefID()
 		msh = vs.ImportImageFileN(img_path, (0,0),1)
 		vs.SetPlanarRef(msh, pl_id)
-		
+
 		vv = (fg_ed1[kk][0]**2+fg_ed1[kk][1]**2+fg_ed1[kk][2]**2)**0.5
 		vw = (fg_ed2[kk][0]**2+fg_ed2[kk][1]**2+fg_ed2[kk][2]**2)**0.5
 		vs.HScale2D(msh,cx,cy,vv*v_count/imw,vw*w_count/imh,False)
@@ -258,7 +258,7 @@ def draw_meshimage(mesh):
 		vw_mesh.append(msh)
 
 	return vw_mesh
-   
+
 
 """____________3D GEOMETRY TRANSLATORS____________"""
 
@@ -312,7 +312,7 @@ def from_arc3d(arc):
 			vs.ArcByCenter(0,0,arc.radius,r1-90,(r2-r1))
 		else:
 			vs.ArcByCenter(0,0,arc.radius,r1-90,180+r2*2)
-		obj = vs.LNewObj() 
+		obj = vs.LNewObj()
 		vs.SetPlanarRef(obj, pl_id)
 		vs.SetWorkingPlaneN( (0,0,0),(0,0,1),(1,0,0) )
 		vs.SetFPat(obj, 0)
@@ -333,8 +333,8 @@ def from_polyline3d(polyline):
 		if len(p) == 2:
 			p = (p[0], p[1], 0)
 		vs.AddVertex3D(nC, p[0] , p[1], p[2])
-	return nC	
-	
+	return nC
+
 def from_poly3d_record(poly,dat):
 	vs.ClosePoly()
 	vw_poly = []
@@ -400,20 +400,20 @@ def from_polyface3d(polyface):
 
 '''
 def from_sphere(sphere):
-	
+
 	return rg.Sphere(from_point3d(sphere.center), sphere.radius)
 '''
 
 '''
 def from_cone(cone):
-	
+
 	plane = rg.Plane(from_point3d(cone.vertex), from_vector3d(cone.axis.normalize()))
 	return rg.Cone(plane, cone.height, cone.radius)
 '''
 
 '''
 def from_cylinder(cylinder):
-	
+
 	return rg.Cylinder(from_arc3d(cylinder.base_bottom), cylinder.height)
 '''
 
@@ -463,13 +463,13 @@ def from_face3d_to_wireframe(face):
 
 
 def from_polyface3d_to_wireframe(polyface):
-	
+
 	return [f for face in polyface.faces for f in from_face3d_to_wireframe(face)]
 
 
 '''
 def from_face3d_to_solid(face, offset):
-	
+
 	srf_brep = from_face3d(face)
 	return rg.Brep.CreateFromOffsetFace(
 		srf_brep.Faces[0], offset, tolerance, False, True)
@@ -483,7 +483,7 @@ def from_face3ds_to_joined_brep(faces):
 
 
 def from_face3ds_to_colored_mesh(faces, color):
-	
+
 	joined_mesh = []
 	for face in faces:
 		try:
@@ -493,7 +493,7 @@ def from_face3ds_to_colored_mesh(faces, color):
 			joined_mesh.Append(po)
 		except Exception:
 			po = None  # failed to create a Rhino Mesh from the Face3D
-		
+
 	#joined_mesh.VertexColors.CreateMonotoneMesh(color_to_color(color))
 	return joined_mesh
 
@@ -542,7 +542,7 @@ def from_mesh3d_to_outline(mesh):
 		else:
 			outline = outline2
 	outlines.append(outline)
-	
+
 	return rh_mesh,outlines
 
 
@@ -597,7 +597,7 @@ def _translate_mesh(mesh, z):
 				vw_mesh.VertexColors[i] = color_to_color(col)
 		'''
 	return vw_mesh
-	
+
 def from_mesh3d_to_poly(mesh):
 	vs.ClosePoly()
 	if mesh.is_color_by_face:  # Mesh is constructed face-by-face
@@ -638,4 +638,4 @@ def _polyline_points(tup):
 		pts.append((pt.x,pt.y,pt.z))
 	vs.Poly3D(*pts)
 	po = vs.LNewObj()
-	return po 
+	return po
