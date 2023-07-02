@@ -140,7 +140,6 @@ def to_plane(pl):
 	(nx,ny,nz)= nn_cross(n1,n2)
 	nl = nn_l((nx,ny,nz))
 	n = (nx/nl, ny/nl, nz/nl)
-	vs.CreateText(str(n[0])+":"+str(n[1])+":"+str(n[2]))
 	return Plane(Vector3D(n[0],n[1],n[2]), Point3D(pt0[0],pt0[1],pt0[2]))
 
 def to_face3d(geo, meshing_parameters=None):
