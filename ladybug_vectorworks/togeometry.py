@@ -122,13 +122,26 @@ def to_polyline3d(polyline):
 	pts = [to_point3d(polyline.Point(i)) for i in range(polyline.PointCount)]
 	return Polyline3D(pts) if len(pts) != 2 else LineSegment3D.from_end_points(*pts)
 '''
+def nn_cross(a,b):
+	(a1,a2,a3)=a
+	(b1,b2,b3)=b
+	return (a2*b3-a3*b2 , a3*b1-a1*b3 , a1*b2-a2*b1)
 
-'''
+def nn_l(a):
+	(a1,a2,a3)=a
+	return (a1**2+a2**2+a3**2)**0.5
+
 def to_plane(pl):
-	return Plane(
-		to_vector3d(pl.ZAxis), to_point3d(pl.Origin), to_vector3d(pl.XAxis))
-'''
-
+	pt0  = vs.GetPolyPt3D( pl ,0 )
+	pt1  = vs.GetPolyPt3D( pl ,1 )
+	pt2  = vs.GetPolyPt3D( pl ,2 )
+	n1 = tuple(ai - bi for ai, bi in zip(pt1, pt0))
+	n2 = tuple(ai - bi for ai, bi in zip(pt2, pt0))
+	(nx,ny,nz)= nn_cross(n1,n2)
+	nl = nn_l((nx,ny,nz))
+	n = (nx/nl, ny/nl, nz/nl)
+	vs.CreateText(str(n[0])+":"+str(n[1])+":"+str(n[2]))
+	return Plane(Vector3D(n[0],n[1],n[2]), Point3D(pt0[0],pt0[1],pt0[2]))
 
 def to_face3d(geo, meshing_parameters=None):
 	grpPoly = vs.ConvertTo3DPolys(geo)
