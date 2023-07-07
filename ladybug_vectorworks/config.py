@@ -8,14 +8,15 @@ except ImportError as e:
 
 import vs
 
-tolerance = 0.01
+(fraction, display, format, upi, name, squareName) =  vs.GetUnits()
+
+tolerance = 0.01/round(0.0254/upi,5)
 angle_tolerance = 1.0
 
 #from .ghpath import find_grasshopper_userobjects, find_grasshopper_libraries
 
 
 def conversion_to_meters():
-	(fraction, display, format, upi, name, squareName) =  vs.GetUnits()
 	return round(0.0254/upi,5)
 
 
