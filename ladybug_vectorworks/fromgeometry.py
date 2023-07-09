@@ -390,13 +390,13 @@ def from_face3d(face):
 	'''
 
 
-'''
 def from_polyface3d(polyface):
-	rh_faces = [from_face3d(face) for face in polyface.faces]
-	brep = rg.Brep.JoinBreps(rh_faces, tolerance)
-	if len(brep) == 1:
-		return brep[0]
-'''
+	grp = None
+	grp = vs.BeginGroupN( grp )
+	rh_faces = [from_face3d(face) for face in polyface.face]
+	vs.EndGroup()
+	return grp
+
 
 '''
 def from_sphere(sphere):
