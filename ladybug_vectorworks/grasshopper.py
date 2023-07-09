@@ -27,32 +27,44 @@ import operator
 import vs
 from honeybee.config import folders as hb_folders
 
-def set_icon(node_handle,ox,oy): #, ver = "1.6.0"):
-	vs.MoveTo(0,0)
-	name = "icon_"+vs.GetRField(node_handle,'MarionetteNode','NodeType')
-	nname = vs.GetObjectUuid(node_handle)
-	iname = "ni_"+ nname
-	ih = vs.GetObject(iname)
-	if ih == None:
-		path= hb_folders.python_package_path+"/ladybug_vectorworks/icon_set/"+name+".png"
-		path = path.replace(os.sep,'/')
-		h0 = vs.ImportImageFileN(path, (0,0),1)
-		vs.DelObject(h0)
-		ih0 =  vs.ImportImageFileN(path, (0,0),1)
-		ih =  vs.CreateDuplicateObject(ih0, vs.GetParent(node_handle))
-		vs.SetName(ih , iname)
-		vs.DelObject(ih0)
-	((p1x,p1y),(p2x,p2y))=vs.GetBBox(ih)
-	iw = p2x-p1x
-	(fraction, display, format, upi, name, squareName) =  vs.GetUnits()
-	scale = vs.GetLScale(vs.ActLayer())/50*upi/25.4
-	if iw*scale != 330 and iw !=0:
-		vs.HScale2D(ih, (p2x+p1x)/2 ,(p2y+p1y)/2 , 330/iw*scale, 330/iw*scale, False)
-	(p3x,p3y)=vs.Get2DPt(node_handle)
-	ppx = p3x-(p2x+p1x)/2+ scale*ox
-	ppy = p3y-(p2y+p1y)/2+ scale*oy
-	vs.HMove(ih,ppx ,ppy )
-	return
+def set_icon(node_handle,ox=0,oy=0): #, ver = "1.6.0"):
+	if node_handle:
+		vs.MoveTo(0,0)
+		name = "icon_"+vs.GetRField(node_handle,'MarionetteNode','NodeType')
+		nname = vs.GetObjectUuid(node_handle)
+		iname = "ni_"+ nname
+		ih = vs.GetObject(iname)
+		if ih == None:
+			path= hb_folders.python_package_path+"/ladybug_vectorworks/icon_set/"+name+".png"
+			path = path.replace(os.sep,'/')
+			h0 = vs.ImportImageFileN(path, (0,0),1)
+			vs.DelObject(h0)
+			ih0 =  vs.ImportImageFileN(path, (0,0),1)
+			ih =  vs.CreateDuplicateObject(ih0, vs.GetParent(node_handle))
+			vs.SetName(ih , iname)
+			vs.DelObject(ih0)
+
+		((p1x,p1y),(p2x,p2y))=vs.GetBBox(ih)
+		iw = p2x-p1x
+		(fraction, display, format, upi, name, squareName) =  vs.GetUnits()
+		scale = vs.GetLScale(vs.ActLayer())/50*upi/25.4
+
+		node_width = float(vs.GetRField(node_handle,'MarionetteNode','NodeWidth'))
+		node_height = float(vs.GetRField(node_handle,'MarionetteNode','NodeHeight'))
+		ox = node_width/2
+		oy = node_height/2+270
+
+		if iw*scale != 330 and iw !=0:
+			vs.HScale2D(ih, (p2x+p1x)/2 ,(p2y+p1y)/2 , 330/iw*scale, 330/iw*scale, False)
+
+		p3=vs.GetSymLoc(node_handle)
+
+
+		ppx = p3[0]-(p2x+p1x)/2+ scale*ox
+		ppy = p3[1]-(p2y+p1y)/2+ scale*oy
+		vs.HMove(ih,ppx ,ppy )
+		return
+
 	'''
 	vs.MoveTo(0,0)
 	tname = "ver_"+ nname
@@ -82,6 +94,11 @@ def give_warning(component2, message):
 			the ghenv.Component call within Grasshopper API.
 		message: Text string for the warning message.
 	"""
+	tj = vs.GetPrefInt(82)
+	tv = vs.GetPrefInt(83)
+	vs.TextJust( 1)
+	vs.TextVerticalAlign(1)
+
 	nname = vs.GetObjectUuid(component2)
 	iname = "warn_"+ nname
 	ih = vs.GetObject(iname)
@@ -96,7 +113,8 @@ def give_warning(component2, message):
 	(p3x,p3y)=vs.Get2DPt(component2)
 	vs.HMove(hhh,p3x,p3y)
 	vs.DelObject(hh0)
-
+	vs.TextJust(tj)
+	vs.TextVerticalAlign(tv)
 '''
 
 def give_remark(component, message):
