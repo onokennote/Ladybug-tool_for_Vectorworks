@@ -10,7 +10,8 @@ except ImportError as e:
 	raise ImportError('Failed to import ladybug_geometry.\n{}'.format(e))
 from ladybug_geometry.geometry3d.mesh import Mesh3D
 from honeybee.config import folders as hb_folders
-from PIL import Image, ImageFilter
+from PIL import Image ,ImageFilter ,ImageDraw
+import os
 '''
 def obj2plane(obj , plane ):
 	(ax,ay,az ) =plane.o
@@ -217,7 +218,6 @@ def draw_meshimage(mesh):
 		w_max = max(pw)
 		v_count = int((v_max-v_min)/v_dim)+1
 		w_count = int((w_max-w_min)/w_dim)+1
-		from PIL import Image,ImageDraw
 		img = Image.new("RGBA",(v_count*2,w_count*2))
 		draw = ImageDraw.Draw(img)
 		(av,aw) = (v_min,w_min)
@@ -229,12 +229,11 @@ def draw_meshimage(mesh):
 			draw.rectangle(((ppv*2,ppw*2),(ppv*2+1,ppw*2+1)),(col.r,col.g,col.b,255))
 
 		img_path = hb_folders.default_simulation_folder+"/mashimg.png"
+		img_path = img_path.replace(os.sep,"/")
 		img.save(img_path)
-
-		msh = vs.ImportImageFile(img_path, (0,0))
-		((b1x,b1y),(b2x,b2y)) = vs.GetBBox(msh)
-		imw = b2x-b1x
-		imh = b2y-b1y
+		msh = vs.ImportImageFileN(img_path, (0,0),1)
+		imw = vs.HWidth(msh)
+		imh = vs.HHeight(msh)
 		vs.DelObject(msh)
 
 		igr = None
@@ -248,7 +247,7 @@ def draw_meshimage(mesh):
 
 		vv = (fg_ed1[kk][0]**2+fg_ed1[kk][1]**2+fg_ed1[kk][2]**2)**0.5
 		vw = (fg_ed2[kk][0]**2+fg_ed2[kk][1]**2+fg_ed2[kk][2]**2)**0.5
-		vs.HScale2D(msh,cx,cy,vv*v_count/imw,vw*w_count/imh,False)
+		vs.HScale2D(msh,cx,cy,vv*v_count/imw,-vw*w_count/imh,False)
 		#vs.HMove(msh,-icx,-icy)
 		vs.SetWorkingPlaneN( (0,0,0),(0,0,1),(1,0,0) )
 		vs.EndGroup()
