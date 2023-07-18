@@ -143,14 +143,30 @@ def to_plane(pl):
 	return Plane(Vector3D(n[0],n[1],n[2]), Point3D(pt0[0],pt0[1],pt0[2]))
 
 def to_face3d(geo, meshing_parameters=None):
-	grpPoly = vs.ConvertTo3DPolys(geo)
-	poly = []
-	faces = []
-	h = vs.FInGroup(grpPoly)
+	if vs.GetTypeN(geo)==25:
+		poly = [geo]
+	else:
+		nbs = vs.ConvertToNURBS(geo,False)
+		if vs.GetTypeN(nbs)==11:
+			parts = []
+			h = vs.FInGroup(nbs)
+			while h != None:
+				parts.append(h)
+				h = vs.NextObj(h)
+		else:
+			parts =[nbs]
+		poly = []
+		for part in parts:
+			part = vs.ConvertTo3DPolys(part)
+			if vs.GetTypeN(part)==11:
+				h = vs.FInGroup(part)
+				while h != None:
+					poly.append(h)
+					h = vs.NextObj(h)
+			else:
+				poly.append(part)
 
-	while h != None:
-		poly.append(h)
-		h = vs.NextObj(h)
+	faces =[]
 	for h in poly:
 		pt = []
 		for iii in range(0,vs.GetVertNum(h)):
@@ -160,63 +176,7 @@ def to_face3d(geo, meshing_parameters=None):
 		faces.append(face)
 	for h in poly:
 		vs.Marionette_DisposeObj(h)
-
 	return faces
-	'''
-	faces = []	# list of Face3Ds to be populated and returned
-	if vs.GetType(geo)==40:#if isinstance(geo, rg.Mesh):  # convert each Mesh face to a Face3D
-		pts = tuple(to_point3d(pt) for pt in geo.Vertices)
-		for face in geo.Faces:
-			if face.IsQuad:
-				all_verts = (pts[face[0]], pts[face[1]], pts[face[2]], pts[face[3]])
-				lb_face = Face3D(all_verts)
-				if lb_face.area != 0:
-					for _v in lb_face.vertices:
-						if lb_face.plane.distance_to_point(_v) >= tolerance:
-							# non-planar quad split the quad into two planar triangles
-							verts1 = (pts[face[0]], pts[face[1]], pts[face[2]])
-							verts2 = (pts[face[3]], pts[face[0]], pts[face[1]])
-							faces.append(Face3D(verts1))
-							faces.append(Face3D(verts2))
-							break
-					else:
-						faces.append(lb_face)
-			else:
-				all_verts = (pts[face[0]], pts[face[1]], pts[face[2]])
-				lb_face = Face3D(all_verts)
-				if lb_face.area != 0:
-					faces.append(lb_face)
-	else:  # convert each Brep Face to a Face3D
-		meshing_parameters = meshing_parameters #or rg.MeshingParameters.Default
-		for b_face in geo.Faces:
-			if b_face.IsPlanar(tolerance):
-				try:
-					bf_plane = to_plane(b_face.FrameAt(0, 0)[-1])
-				except Exception:  # failed to extract the plane from the geometry
-					bf_plane = None	 # auto-calculate the plane from the vertices
-				all_verts = []
-				for count in range(b_face.Loops.Count):	 # Each loop is a boundary/hole
-					success, loop_pline = \
-						b_face.Loops.Item[count].To3dCurve().TryGetPolyline()
-					if not success:	 # Failed to get a polyline; there's a curved edge
-						loop_verts = _planar.planar_face_curved_edge_vertices(
-							b_face, count, meshing_parameters)
-					else:  # we have a polyline representing the loop
-						loop_verts = tuple(to_point3d(loop_pline.Item[i])
-										   for i in range(loop_pline.Count - 1))
-					all_verts.append(_remove_dup_verts(loop_verts))
-				if len(all_verts[0]) >= 3:
-					if len(all_verts) == 1:	 # No holes in the shape
-						faces.append(Face3D(all_verts[0], plane=bf_plane))
-					else:  # There's at least one hole in the shape
-						hls = [hl for hl in all_verts[1:] if len(hl) >= 3]
-						faces.append(Face3D(
-							boundary=all_verts[0], holes=hls, plane=bf_plane))
-			else:  # curved face must be meshed into planar Face3D objects
-				faces.extend(_planar.curved_surface_faces(b_face, meshing_parameters))
-	return faces
-	'''
-
 
 def to_polyface3d(geo, meshing_parameters=None):
 	return Polyface3D.from_faces(to_face3d(geo, meshing_parameters), tolerance)
@@ -230,15 +190,28 @@ def to_polyface3d(geo, meshing_parameters=None):
 
 
 def to_mesh3d(mesh, color_by_face=True):
-	grpPoly = vs.ConvertTo3DPolys(mesh)
-	poly = []
-	mesh_grids = []
-
-	h = vs.FInGroup(grpPoly)
-
-	while h != None:
-		poly.append(h)
-		h = vs.NextObj(h)
+	if vs.GetTypeN(geo)==25:
+		poly = [geo]
+	else:
+		nbs = vs.ConvertToNURBS(geo,False)
+		if vs.GetTypeN(nbs)==11:
+			parts = []
+			h = vs.FInGroup(nbs)
+			while h != None:
+				parts.append(h)
+				h = vs.NextObj(h)
+		else:
+			parts =[nbs]
+		poly = []
+		for part in parts:
+			part = vs.ConvertTo3DPolys(part)
+			if vs.GetTypeN(part)==11:
+				h = vs.FInGroup(part)
+				while h != None:
+					poly.append(h)
+					h = vs.NextObj(h)
+			else:
+				poly.append(part)
 
 	pts = []
 
