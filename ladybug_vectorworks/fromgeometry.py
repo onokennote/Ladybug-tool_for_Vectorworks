@@ -273,10 +273,17 @@ def from_point3d(pts):
 	#vs.Locus3D(p2)
 	return p2
 
-'''
+
 def from_ray3d(ray):
-	return rg.Ray3d(from_point3d(ray.p), from_vector3d(ray.v))
-'''
+	p = from_point3d(ray.p)
+	v = from_vector3d(ray.v)
+	vs.BeginPoly3D()
+	vs.Add3DPt(p)
+	vs.Add3DPt((p[0]+v[0], p[1]+v[1], p[2]+v[2]))
+	vs.EndPoly3D()
+	obj = vs.LNewObj()
+	vs.SetFPat(obj, 0)
+	return obj
 
 
 def from_linesegment3d(line):
