@@ -19,7 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 def join_geometry_to_mesh(geometry):
 	obj = geometry
-	
+
 	faces = []
 	cobj = []
 	for ob in obj:
@@ -29,22 +29,22 @@ def join_geometry_to_mesh(geometry):
 		while h != None:
 			faces.append(h)
 			h = vs.NextObj(h)
-	
-	
+
+
 	vs.BeginMesh()
 	for h in faces:
 		vs.CreateDuplicateObject(h,vs.Handle(0))
 	vs.EndMesh()
 	mesh = vs.LNewObj()
-	
+
 	for h in cobj:
 		vs.Marionette_DisposeObj(h)
 	for h in obj:
 		vs.Marionette_DisposeObj(h)
-	
-	
+
+
 	return mesh
-	
+
 	'''
 	joined_mesh = rg.Mesh()
 	for geo in geometry:
@@ -59,7 +59,7 @@ def join_geometry_to_mesh(geometry):
 							'Not {}.'.format(type(geo)))
 	return joined_mesh
 	'''
-'''
+
 def join_geometry_to_brep(geometry):
 	"""Convert an array of Rhino Breps and/or Meshes into a single Rhino Brep.
 
@@ -69,8 +69,8 @@ def join_geometry_to_brep(geometry):
 		geometry: An array of Rhino Breps or Rhino Meshes.
 	"""
 	joined_mesh = join_geometry_to_mesh(geometry)
-	return rg.Brep.CreateFromMesh(joined_mesh, False)
-'''
+	return joined_mesh
+
 
 
 
@@ -81,16 +81,16 @@ def vec3D_angle(va,vb):
 	return math.acos(vcos)
 
 def int_check(faces,ray):
-	
+
 	rep = 1
 	for face in faces:
-			re = face.intersect_line_ray(ray)	
+			re = face.intersect_line_ray(ray)
 			if re != None:
 				rep = 0
 				break
 	return rep
 
-def intersect_mesh_rays(mesh, points, vectors, normals=None, cpu_count=0, parallel=True):
+def intersect_mesh_rays(mesh, points, vectors, normals=None, cpu_count=0, parallel=True,max_dist=None):
 	faces = to_face3d(mesh)
 	intersection_matrix = [0] * len(points)	 # matrix to be filled with results
 	angle_matrix = [0] * len(normals) if normals is not None else None
@@ -108,7 +108,13 @@ def intersect_mesh_rays(mesh, points, vectors, normals=None, cpu_count=0, parall
 			(vx,vy,vz) = vec
 			v = Vector3D(vx,vy,vz)
 			ray = Ray3D(p, v)
-			int_list.append(int_check(faces,ray))
+			if max_dist is not None:
+				if (vx**2+vy**2+vz**2)**0.5<max_dist:
+					int_list.append(int_check(faces,ray))
+				else:
+					int_list.append(0)
+			else:
+				int_list.append(0)
 		intersection_matrix[i] = int_list
 
 	def intersect_point_normal_check(i):
@@ -123,15 +129,15 @@ def intersect_mesh_rays(mesh, points, vectors, normals=None, cpu_count=0, parall
 				(px,py,pz) = pt
 				p = Point3D(px,py,pz)
 				(vx,vy,vz) = vec
-				v = Vector3D(vx,vy,vz)	
+				v = Vector3D(vx,vy,vz)
 				ray = Ray3D(p, v)
 				int_list.append(int_check(faces,ray))
 			else:  # the vector is pointing behind the surface
 				int_list.append(0)
 		intersection_matrix[i] = specializedarray.array('B', int_list)
 		angle_matrix[i] = specializedarray.array('d', angle_list)
-		
-	
+
+
 
 	def intersect_each_point_group(worker_i):
 		"""Intersect groups of points so that only the cpu_count is used."""
@@ -154,7 +160,7 @@ def intersect_mesh_rays(mesh, points, vectors, normals=None, cpu_count=0, parall
 		pt_groups[-1][-1] = pt_count  # ensure the last group ends with point count
 
 	if normals is not None:
-		
+
 		if cpu_count is None:  # use all available CPUs
 			with ThreadPoolExecutor() as executor:
 				for i in range(len(points)):
@@ -166,14 +172,14 @@ def intersect_mesh_rays(mesh, points, vectors, normals=None, cpu_count=0, parall
 			with ThreadPoolExecutor() as executor:
 				for i in range(len(points)):
 					executor.submit(intersect_each_point_group_normal_check,i)
-		
+
 	else:
-		
+
 		if cpu_count is None:  # use all available CPUs
 			with ThreadPoolExecutor() as executor:
 				for i in range(len(points)):
 					executor.submit(intersect_point,i)
-			
+
 		elif cpu_count <= 1:  # run everything on a single processor
 			for i in range(len(points)):
 				intersect_point(i)
@@ -181,40 +187,20 @@ def intersect_mesh_rays(mesh, points, vectors, normals=None, cpu_count=0, parall
 			with ThreadPoolExecutor() as executor:
 				for i in range(len(points)):
 					executor.submit(intersect_each_point_group,i)
-		
+
 	return intersection_matrix, angle_matrix
-'''
+
 def intersect_mesh_lines(
 		mesh, start_points, end_points, max_dist=None, cpu_count=None, parallel=True):
-	"""Intersect a group of lines (represented by start + end points) with a mesh.
-
-	All combinations of lines that are possible between the input start_points and
-	end_points will be intersected. This method exists since most CAD plugins have
-	much more efficient mesh/line intersection functions than ladybug_geometry.
-	However, the ladybug_geometry Face3D.intersect_line_ray() method provides
-	a workable (albeit very inefficient) alternative to this if it is needed.
-
-	Args:
-		mesh: A Rhino mesh that can block the lines.
-		start_points: An array of Rhino points that will be used to generate lines.
-		end_points: An array of Rhino points that will be used to generate lines.
-		max_dist: An optional number to set the maximum distance beyond which the
-			end_points are no longer considered visible by the start_points.
-			If None, points with an unobstructed view to one another will be
-			considered visible no matter how far they are from one another.
-		cpu_count: An integer for the number of CPUs to be used in the intersection
-			calculation. The ladybug_rhino.grasshopper.recommended_processor_count
-			function can be used to get a recommendation. If set to None, all
-			available processors will be used. (Default: None).
-		parallel: Optional boolean to override the cpu_count and use a single CPU
-			instead of multiple processors.
-
-	Returns:
-		A 2D matrix of 0's and 1's indicating the results of the intersection.
-		Each sub-list of the matrix represents one of the points and has a
-		length equal to the end_points. 0 indicates a blocked ray and 1 indicates
-		a ray that was not blocked.
-	"""
+	vectors =[]
+	for i ,ep in enumerate(end_points):
+		(x1,y1,z1)=start_points[i]
+		(x2,y2,z2)=ep
+		vectors.append((x2-x1,y2-y1,z2-z1))
+	intersection_matrix, angle_matrix = intersect_mesh_rays(mesh, start_points, vectors,\
+		normals=None, cpu_count=cpu_count, parallel=parallel, max_dist=max_dist)
+	return intersection_matrix
+'''
 	int_matrix = [0] * len(start_points)  # matrix to be filled with results
 	if not parallel:
 		cpu_count = 1
@@ -285,7 +271,7 @@ def intersect_mesh_lines(
 	return int_matrix
 '''
 
-'''
+
 def trace_ray(ray, breps, bounce_count=1):
 	"""Get a list of Rhino points for the path a ray takes bouncing through breps.
 
@@ -295,8 +281,10 @@ def trace_ray(ray, breps, bounce_count=1):
 		bounce_count: An positive integer for the number of ray bounces to trace
 			the sun rays forward. (Default: 1).
 	"""
+	### vectorworksに要置き換え
+
 	return rg.Intersect.Intersection.RayShoot(ray, breps, bounce_count)
-'''
+
 
 '''
 def normal_at_point(brep, point):
@@ -324,7 +312,7 @@ def bounding_box(geometry, high_accuracy=False):
 	"""
 	oy,ox,oz = vs.Get3DInfo(geometry)
 	(cx,cy),cz =  vs.Get3DCntr(geometry)
-	
+
 	p1x = cx - ox/2
 	p1y = cy - oy/2
 	p1z = cz - oz/2
@@ -333,7 +321,7 @@ def bounding_box(geometry, high_accuracy=False):
 	p2z = cz + oz/2
 	return [(p1x,p1y,p1z),(p2x,p2y,p2z)]
 	#return geometry.GetBoundingBox(high_accuracy)
-'''	
+
 def bounding_box_extents(geometry, high_accuracy=False):
 	"""Get min and max points around an input Rhino Mesh or Brep
 
@@ -347,8 +335,8 @@ def bounding_box_extents(geometry, high_accuracy=False):
 			boxes are always similar to or larger than accurate bounding boxes.
 	"""
 	b_box = bounding_box(geometry, high_accuracy)
-	return b_box.Max, b_box.Min
-'''
+	return b_box[1], b_box[0]
+
 
 def intersect_solids_parallel(solids, bound_boxes, cpu_count=None):
 	"""Intersect the co-planar faces of an array of solids using parallel processing.
@@ -472,7 +460,7 @@ def intersect_solid(solid, other_solid):
 		intersection_exists = True
 	else:
 		intersection_exists = False
-	return solid, intersection_exists	
+	return solid, intersection_exists
 	'''intersection_exists = False	 # boolean to note whether an intersection exists
 	temp_brep = solid.Split(other_solid, tolerance)
 	if len(temp_brep) != 0:
@@ -499,7 +487,7 @@ def overlapping_bounding_boxes(bound_box1, bound_box2):
 	# Bounding box check using the Separating Axis Theorem
 	(p11x,p11y,p11z),(p12x,p12y,p12z) = bound_box1
 	(p21x,p21y,p21z),(p22x,p22y,p22z) = bound_box1
-	
+
 	bb1_width = p12x-p11x #bound_box1.Max.X - bound_box1.Min.X
 	bb2_width = p22x-p21x #bound_box2.Max.X - bound_box2.Min.X
 	dist_btwn_x = abs((p11x+p12x)/2 - (p21x+p22x)/2) #abs(bound_box1.Center.X - bound_box2.Center.X)
