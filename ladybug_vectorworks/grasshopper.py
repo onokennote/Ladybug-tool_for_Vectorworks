@@ -52,7 +52,7 @@ def set_icon(node_handle,ox=0,oy=0): #, ver = "1.6.0"):
 		node_width = float(vs.GetRField(node_handle,'MarionetteNode','NodeWidth'))
 		node_height = float(vs.GetRField(node_handle,'MarionetteNode','NodeHeight'))
 		ox = node_width/2
-		oy = node_height/2+270*scale
+		oy = node_height/2+270
 
 		if iw*scale != 330 and iw !=0:
 			vs.HScale2D(ih, (p2x+p1x)/2 ,(p2y+p1y)/2 , 330/iw*scale, 330/iw*scale, False)
@@ -60,8 +60,8 @@ def set_icon(node_handle,ox=0,oy=0): #, ver = "1.6.0"):
 		p3=vs.GetSymLoc(node_handle)
 
 
-		ppx = p3[0]-(p2x+p1x)/2+ ox
-		ppy = p3[1]-(p2y+p1y)/2+ oy
+		ppx = p3[0]-(p2x+p1x)/2+ scale*ox
+		ppy = p3[1]-(p2y+p1y)/2+ scale*oy
 		vs.HMove(ih,ppx ,ppy )
 		return
 
@@ -222,7 +222,7 @@ def recommended_processor_count():
 	return 1 if cpu_count is None or cpu_count <= 1 else cpu_count - 1
 
 
-'''
+
 def run_function_in_parallel(parallel_function, object_count, cpu_count=None):
 	"""Run any function in parallel given a number of objects to be iterated over.
 
@@ -265,7 +265,7 @@ def run_function_in_parallel(parallel_function, object_count, cpu_count=None):
 			parallel_function(i)
 	else:  # run the groups in a manner that meets the CPU count
 		tasks.Parallel.ForEach(range(len(obj_groups)), compute_each_object_group)
-'''
+
 
 '''
 def component_guid(component):
@@ -402,7 +402,6 @@ def longest_list(values, index):
 	except IndexError:
 		return values[-1]
 
-'''
 def data_tree_to_list(input):
 	"""Convert a grasshopper DataTree to nested lists of lists.
 
@@ -412,6 +411,8 @@ def data_tree_to_list(input):
 	Returns:
 		listData -- A list of namedtuples (path, dataList)
 	"""
+	return input
+	'''
 	all_data = list(range(len(input.Paths)))
 	pattern = collections.namedtuple('Pattern', 'path list')
 
@@ -426,7 +427,8 @@ def data_tree_to_list(input):
 		all_data[i] = branch
 
 	return all_data
-'''
+	'''
+
 
 
 def list_to_data_tree(input, root_count=0, s_type=object):
