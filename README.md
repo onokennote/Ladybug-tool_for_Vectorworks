@@ -70,6 +70,8 @@ You can also check the update history [here](https://github.com/onokennote/Ladyb
 
 *The porting of Dragonfly and Butterfly is undecided. We would like to make a decision based on requests and the presence or absence of collaborators, so we are looking for people who can continue to provide opinions and cooperate.
 
+*All descriptions are in Japanese, but **if anyone can return them to English, I would appreciate it**. If you give me the file, I will publish the English version of the node list.
+
 ### Ladybug tools (source)
 Ladybug Tools 🐞 is a collection of free computer applications that support green design and simulation.
 
